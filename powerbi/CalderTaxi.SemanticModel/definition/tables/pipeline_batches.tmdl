@@ -1,0 +1,139 @@
+table pipeline_batches
+	lineageTag: 3f959db9-b73b-5d7b-9290-bd534bf79ab5
+
+	column batch_id
+		dataType: string
+		lineageTag: e708c4a8-9372-5c6d-8563-964ac562d3a4
+		summarizeBy: none
+		sourceColumn: batch_id
+
+		annotation SummarizationSetBy = User
+
+	column files
+		dataType: string
+		lineageTag: 29a2f968-7e09-5cf9-be8d-8cbd1e576893
+		summarizeBy: none
+		sourceColumn: files
+
+		annotation SummarizationSetBy = User
+
+	column rows_in
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8bbce650-cafb-5c3b-a62c-49828d1768dc
+		summarizeBy: none
+		sourceColumn: rows_in
+
+		annotation SummarizationSetBy = User
+
+	column exact_duplicates
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2796ebc0-a860-554c-87ca-d967a8dbd903
+		summarizeBy: none
+		sourceColumn: exact_duplicates
+
+		annotation SummarizationSetBy = User
+
+	column rejected
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5beb4012-5291-56fc-aff9-1e73f356a463
+		summarizeBy: none
+		sourceColumn: rejected
+
+		annotation SummarizationSetBy = User
+
+	column same_key_duplicates
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 44b8d04b-8372-54c2-bb92-6e3249fdbff8
+		summarizeBy: none
+		sourceColumn: same_key_duplicates
+
+		annotation SummarizationSetBy = User
+
+	column inserted
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 98bc8489-b187-5c20-949b-a0b5765c28c9
+		summarizeBy: none
+		sourceColumn: inserted
+
+		annotation SummarizationSetBy = User
+
+	column updated
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 30bf5972-760d-5a39-9e38-a1a2f7ae9e9d
+		summarizeBy: none
+		sourceColumn: updated
+
+		annotation SummarizationSetBy = User
+
+	column silver_version
+		dataType: int64
+		formatString: 0
+		lineageTag: e19d1238-69cf-58a8-8ddb-96f08489bf2b
+		summarizeBy: none
+		sourceColumn: silver_version
+
+		annotation SummarizationSetBy = User
+
+	column months_touched
+		dataType: string
+		lineageTag: 04811084-5cec-56e1-91c6-66d4a9928ca0
+		summarizeBy: none
+		sourceColumn: months_touched
+
+		annotation SummarizationSetBy = User
+
+	column schema_notes
+		dataType: string
+		lineageTag: 3df383f6-e23e-5192-8319-9f668dd82244
+		summarizeBy: none
+		sourceColumn: schema_notes
+
+		annotation SummarizationSetBy = User
+
+	column run_order
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3182d45c-13ed-529f-87a5-ca909390ff1d
+		summarizeBy: none
+		sourceColumn: run_order
+
+		annotation SummarizationSetBy = User
+
+	column run
+		dataType: string
+		sortByColumn: run_order
+		lineageTag: 16cc6953-3548-5967-bd95-074fe9a6abca
+		summarizeBy: none
+		sourceColumn: run
+
+		annotation SummarizationSetBy = User
+
+	partition pipeline_batches = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "pipeline_batches.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Kept = Table.SelectColumns(Promoted, {"batch_id", "files", "rows_in", "exact_duplicates", "rejected", "same_key_duplicates", "inserted", "updated", "silver_version", "months_touched", "schema_notes"}),
+				    Blanks = Table.TransformColumns(Kept, {}, each if _ = "" then null else _),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"batch_id", type text}, {"files", type text}, {"rows_in", Int64.Type}, {"exact_duplicates", Int64.Type}, {"rejected", Int64.Type}, {"same_key_duplicates", Int64.Type}, {"inserted", Int64.Type}, {"updated", Int64.Type}, {"silver_version", Int64.Type}, {"months_touched", type text}, {"schema_notes", type text}}, "en-US"),
+				    Sorted = Table.Sort(Typed, {"batch_id", Order.Ascending}),
+				    Idx = Table.AddIndexColumn(Sorted, "run_order", 1, 1, Int64.Type),
+				    Run = Table.AddColumn(Idx, "run", each if [run_order] = 1 then "1 · Initial load" else Text.From([run_order]) & " · Incremental load", type text)
+				in
+				    Run
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,100 @@
+table fact_hourly
+	lineageTag: f2f36968-6ece-53d1-b8ca-811a69854ab4
+
+	column pickup_month
+		dataType: string
+		isHidden
+		lineageTag: b8aeeb90-1171-5aab-bd9b-5adb1bfc9209
+		summarizeBy: none
+		sourceColumn: pickup_month
+
+		annotation SummarizationSetBy = User
+
+	column pickup_hour
+		dataType: int64
+		formatString: 0
+		lineageTag: 84fbcdf1-a05a-5d30-a6bb-0ddd3a3a446e
+		summarizeBy: none
+		sourceColumn: pickup_hour
+
+		annotation SummarizationSetBy = User
+
+	column day_type
+		dataType: string
+		isHidden
+		lineageTag: d449bfe5-1775-523e-92c5-d733db231bdd
+		summarizeBy: none
+		sourceColumn: day_type
+
+		annotation SummarizationSetBy = User
+
+	column trips
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6c769795-311f-5386-acd2-c96935723646
+		summarizeBy: none
+		sourceColumn: trips
+
+		annotation SummarizationSetBy = User
+
+	column revenue
+		dataType: double
+		isHidden
+		lineageTag: befa6a89-66a2-5435-b205-9e0416cf21ea
+		summarizeBy: none
+		sourceColumn: revenue
+
+		annotation SummarizationSetBy = User
+
+	column distance_mi
+		dataType: double
+		isHidden
+		lineageTag: 63640feb-6b04-5dc7-9e12-08ed5eb34efa
+		summarizeBy: none
+		sourceColumn: distance_mi
+
+		annotation SummarizationSetBy = User
+
+	column duration_min
+		dataType: double
+		isHidden
+		lineageTag: 3fe76320-63d5-50b9-95d7-36194d11a653
+		summarizeBy: none
+		sourceColumn: duration_min
+
+		annotation SummarizationSetBy = User
+
+	column days
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c2d28ccc-2a6c-562e-9710-d7b3c629e745
+		summarizeBy: none
+		sourceColumn: days
+
+		annotation SummarizationSetBy = User
+
+	column hour
+		dataType: string
+		sortByColumn: pickup_hour
+		lineageTag: 76fc879d-62ac-57bd-bb33-829486e097ce
+		summarizeBy: none
+		sourceColumn: hour
+
+		annotation SummarizationSetBy = User
+
+	partition fact_hourly = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "hourly_demand.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Kept = Table.SelectColumns(Promoted, {"pickup_month", "pickup_hour", "day_type", "trips", "revenue", "distance_mi", "duration_min", "days"}),
+				    Blanks = Table.TransformColumns(Kept, {}, each if _ = "" then null else _),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"pickup_month", type text}, {"pickup_hour", Int64.Type}, {"day_type", type text}, {"trips", Int64.Type}, {"revenue", type number}, {"distance_mi", type number}, {"duration_min", type number}, {"days", Int64.Type}}, "en-US"),
+				    HourLabel = Table.AddColumn(Typed, "hour", each Text.PadStart(Text.From([pickup_hour]), 2, "0") & ":00", type text)
+				in
+				    HourLabel
+
+	annotation PBI_ResultType = Table

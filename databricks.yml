@@ -1,0 +1,44 @@
+# Databricks Asset Bundle: deploys the notebooks and a 4-task job (serverless).
+#   databricks bundle validate
+#   databricks bundle deploy          # uploads notebooks, creates/updates the job
+#   databricks bundle run taxi_lakehouse
+# See databricks/SETUP.md for the full walkthrough (Free Edition).
+bundle:
+  name: calder_taxi_lakehouse
+
+include: []
+
+resources:
+  jobs:
+    taxi_lakehouse:
+      name: "Calder taxi lakehouse: bronze -> silver -> gold"
+      description: >
+        Loads new monthly trip files from the landing volume into Delta (bronze), validates, deduplicates
+        and MERGEs them into silver, rebuilds only the affected months in gold, then reconciles row counts.
+      max_concurrent_runs: 1
+      trigger:
+        # run when a new file lands in the volume (switch to a schedule if file-arrival triggers are unavailable)
+        pause_status: PAUSED
+        file_arrival:
+          url: /Volumes/workspace/taxi_bronze/landing/trips/
+      tasks:
+        - task_key: bronze
+          notebook_task:
+            notebook_path: ./notebooks/01_bronze.py
+        - task_key: silver
+          depends_on: [{task_key: bronze}]
+          notebook_task:
+            notebook_path: ./notebooks/02_silver.py
+        - task_key: gold
+          depends_on: [{task_key: silver}]
+          notebook_task:
+            notebook_path: ./notebooks/03_gold.py
+        - task_key: quality
+          depends_on: [{task_key: gold}]
+          notebook_task:
+            notebook_path: ./notebooks/04_quality_and_history.py
+
+targets:
+  dev:
+    mode: development
+    default: true

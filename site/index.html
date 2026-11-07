@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calder City taxi lakehouse: PySpark, Delta Lake and Databricks</title>
+<meta name="description" content="Incremental bronze-silver-gold pipeline in PySpark and Delta Lake on Databricks with MERGE, data-quality reconciliation, analysis and a Power BI dashboard. Synthetic data.">
+<style>
+:root{--bg:#f6f5f2;--surface:#fcfcfb;--border:#e4e2dc;--text:#0b0b0b;--text-2:#52514e;--muted:#7a7974;--pos:#2a78d6;--warn:#d9822b}
+@media (prefers-color-scheme: dark){:root{--bg:#121211;--surface:#1a1a19;--border:#2e2e2b;--text:#f0efec;--text-2:#c3c2b7;--muted:#8f8e86;--pos:#5598e7;--warn:#e9a15a} figure img{background:#fff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1040px;margin:0 auto;padding:48px 24px 72px}
+.eyebrow{font-size:13px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px}
+h1{font-size:34px;line-height:1.15;margin:0 0 12px;letter-spacing:-.01em}
+h2{font-size:22px;margin:48px 0 6px}
+.lede{color:var(--text-2);max-width:760px;margin:0 0 18px;font-size:16.5px}
+.sub{color:var(--text-2);margin:0 0 16px;max-width:780px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 28px}
+.tags li{font-size:12.5px;color:var(--text-2);border:1px solid var(--border);border-radius:999px;padding:3px 10px;background:var(--surface)}
+.note{font-size:13.5px;color:var(--text-2);background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:8px;padding:10px 14px;max-width:780px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:24px 0 8px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.kpi .v{font-size:26px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12.5px;color:var(--text-2)}
+ol.findings{padding-left:22px;max-width:840px}
+ol.findings li{margin:0 0 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr} h1{font-size:28px}}
+figure{margin:0 0 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px}
+figure img{width:100%;height:auto;display:block;border-radius:4px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.hi td{font-weight:650}
+footer{margin-top:56px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);padding-top:16px}
+a{color:var(--pos)}
+</style>
+<body>
+<main>
+  <p class="eyebrow">Data engineering · PySpark · Delta Lake · Databricks</p>
+  <h1>A bronze → silver → gold taxi lakehouse</h1>
+  <p class="lede">Calder City publishes a monthly file of every taxi trip. I built an incremental PySpark and Delta Lake pipeline (Databricks notebooks plus an Asset Bundle job) that loads only new files, rejects bad rows with a reason, applies vendor corrections with MERGE, and reconciles every row. On top of it: an analysis of demand, rain and a new Downtown congestion fee, and a Power BI dashboard.</p>
+  <ul class="tags"><li>PySpark</li><li>Delta Lake · MERGE · time travel</li><li>Databricks · Asset Bundles</li><li>Spark SQL</li><li>Data quality</li><li>Power BI · DAX</li></ul>
+  <p class="note"><b>Synthetic data.</b> 3.56 million trip records (Jan – Jun 2025) from a documented generator, with deliberately injected problems and schema changes. The generator records what it injected, so every cleaning step and finding is checked against the truth.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="l">Raw rows → clean trips</div><div class="v">3.56M → 3.50M</div><div class="d">0 rows unaccounted for</div></div>
+    <div class="kpi"><div class="l">Rejected with a reason</div><div class="v">46,415</div><div class="d">each rule = injected count</div></div>
+    <div class="kpi"><div class="l">Corrections applied (MERGE)</div><div class="v">4,443</div><div class="d">updated in place, +$17,049</div></div>
+    <div class="kpi"><div class="l">Congestion fee effect</div><div class="v">−7.0%</div><div class="d">trips touching Downtown</div></div>
+    <div class="kpi"><div class="l">Rainy days</div><div class="v">+12.2%</div><div class="d">trips; traffic 11.2% slower</div></div>
+  </div>
+
+  <h2>The pipeline</h2>
+  <p class="sub">Three runs: the initial load (Jan – May), an incremental load (June plus the vendor's 13 May re-send), and a re-run with nothing new.</p>
+  <table>
+    <thead><tr><th>Run</th><th>Rows in</th><th>Duplicates</th><th>Rejected</th><th>Inserted</th><th>Updated</th><th>Gold rebuilt</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Initial load (5 files)</td><td>2,950,029</td><td>8,812</td><td>38,470</td><td>2,902,747</td><td>0</td><td>all</td></tr>
+      <tr><td>2 · Incremental (2 new files)</td><td>608,573</td><td>1,818</td><td>7,945</td><td>594,367</td><td>4,443</td><td>May, Jun</td></tr>
+      <tr><td>3 · Re-run (no new files)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>none</td></tr>
+    </tbody>
+  </table>
+  <ol class="findings">
+    <li><b>Bronze</b> reads only files it has not loaded before and conforms three schema versions (a renamed column, a changed type, a column added in March), logging each change.</li>
+    <li><b>Silver</b> applies six validation rules, removes duplicates, keeps the latest version of each trip, and MERGEs into the trips table: corrected records update rows in place instead of duplicating them.</li>
+    <li><b>Gold</b> rebuilds only the months touched by new data. A quality notebook fails the job if a single row is unaccounted for, and uses Delta time travel to show what the correction changed.</li>
+  </ol>
+  <figure><img src="img/chart_pipeline.png" alt="Rows removed by reason, each equal to the injected count" loading="lazy"></figure>
+  <figure><img src="img/dashboard_pipeline.png" alt="Power BI Data Pipeline page" loading="lazy"><figcaption>Power BI · Data Pipeline</figcaption></figure>
+
+  <h2>Findings</h2>
+  <ol class="findings">
+    <li><b>The $2.50 Downtown congestion fee cut trips touching Downtown by 7.0%</b> (95% CI 6.5–7.4%) relative to the rest of the city, and collected $2.95M in four months.</li>
+    <li><b>Rain adds 12.2% trips and slows traffic 11.2%</b>, holding weekday and month constant.</li>
+    <li><b>Weekday demand peaks at 18:00 when traffic is slowest</b> (10 mph); weekends peak at 22:00 with 2.2x the weekday late-night demand.</li>
+    <li><b>Card share rose from 69.9% to 75.0%</b>; card riders tip 20.6%. Airport trips are 3.5% of trips but 7.2% of revenue.</li>
+  </ol>
+  <figure><img src="img/chart_downtown_fee.png" alt="Downtown trips per other trip, before and after the fee" loading="lazy"></figure>
+  <div class="grid2">
+    <figure><img src="img/chart_hourly.png" alt="Trips and speed by hour" loading="lazy"></figure>
+    <figure><img src="img/chart_rain.png" alt="Rain effect" loading="lazy"></figure>
+  </div>
+
+  <h2>Power BI dashboard</h2>
+  <div class="grid2">
+    <figure><img src="img/dashboard_overview.png" alt="Power BI Overview page" loading="lazy"><figcaption>Overview</figcaption></figure>
+    <figure><img src="img/dashboard_fee.png" alt="Power BI Downtown Fee page" loading="lazy"><figcaption>Downtown Fee</figcaption></figure>
+    <figure><img src="img/dashboard_demand.png" alt="Power BI Demand and Traffic page" loading="lazy"><figcaption>Demand &amp; Traffic</figcaption></figure>
+    <figure><img src="img/dashboard_payments.png" alt="Power BI Payments and Zones page" loading="lazy"><figcaption>Payments &amp; Zones</figcaption></figure>
+  </div>
+
+  <footer>Talha Ather · Data analyst · PySpark, Databricks, SQL, Power BI · <a href="https://github.com/talha-ather-pk/taxi-lakehouse-databricks">Source code on GitHub</a></footer>
+</main>
+</body>
+</html>

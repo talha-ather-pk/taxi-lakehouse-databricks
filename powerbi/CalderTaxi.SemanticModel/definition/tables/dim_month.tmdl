@@ -1,0 +1,46 @@
+table dim_month
+	lineageTag: 978a901e-2b0b-5677-8a7b-7a8657310b0d
+
+	column pickup_month
+		dataType: string
+		isHidden
+		isKey
+		lineageTag: 4b47cf7e-2510-5cc6-92bb-c58efc697000
+		summarizeBy: none
+		sourceColumn: pickup_month
+
+		annotation SummarizationSetBy = User
+
+	column month_num
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 635b7473-ddd4-59df-9119-232777b6cde1
+		summarizeBy: none
+		sourceColumn: month_num
+
+		annotation SummarizationSetBy = User
+
+	column month
+		dataType: string
+		sortByColumn: month_num
+		lineageTag: 24221cf4-4db3-55ce-8de6-a70832410986
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = User
+
+	partition dim_month = m
+		mode: import
+		source =
+				let
+				    Months = List.Transform({1..6}, each #date(2025, _, 1)),
+				    Base = Table.FromList(Months, Splitter.SplitByNothing(), type table [d = date]),
+				    Key = Table.AddColumn(Base, "pickup_month", each Date.ToText([d], "yyyy-MM"), type text),
+				    Num = Table.AddColumn(Key, "month_num", each Date.Month([d]), Int64.Type),
+				    Label = Table.AddColumn(Num, "month", each Date.ToText([d], "MMM yyyy", "en-US"), type text),
+				    Out = Table.RemoveColumns(Label, {"d"})
+				in
+				    Out
+
+	annotation PBI_ResultType = Table

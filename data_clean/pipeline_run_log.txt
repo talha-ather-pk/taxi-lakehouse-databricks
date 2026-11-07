@@ -1,0 +1,491 @@
+
+################ ROUND: initial  (landing: trips_2025-01.parquet, trips_2025-02.parquet, trips_2025-03.parquet, trips_2025-04.parquet, trips_2025-05.parquet)
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 01_bronze.py ===
+5 files in landing, 0 already loaded, 5 new -> batch 20261107131656
+  new: trips_2025-01.parquet 19.0 MB
+  new: trips_2025-02.parquet 17.7 MB
+  new: trips_2025-03.parquet 19.9 MB
+  new: trips_2025-04.parquet 20.1 MB
+  new: trips_2025-05.parquet 21.3 MB
+trips_2025-01.parquet: 572,648 rows | schema: cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)
+trips_2025-02.parquet: 533,509 rows | schema: cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)
+trips_2025-03.parquet: 595,982 rows | schema: cast passenger_count bigint -> double
+trips_2025-04.parquet: 604,755 rows | schema: renamed Airport_fee -> airport_fee
+trips_2025-05.parquet: 643,135 rows | schema: renamed Airport_fee -> airport_fee
+zones: 66 rows, weather: 181 days
++---------------------+------+--------------+---------------------------------------------------------------------------------+
+|file_name            |rows  |batch_id      |schema_notes                                                                     |
++---------------------+------+--------------+---------------------------------------------------------------------------------+
+|trips_2025-01.parquet|572648|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-02.parquet|533509|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-03.parquet|595982|20261107131656|cast passenger_count bigint -> double                                            |
+|trips_2025-04.parquet|604755|20261107131656|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-05.parquet|643135|20261107131656|renamed Airport_fee -> airport_fee                                               |
++---------------------+------+--------------+---------------------------------------------------------------------------------+
+
++-----------+-----+
+|bronze_rows|files|
++-----------+-----+
+|2950029    |5    |
++-----------+-----+
+
+--- 01_bronze.py finished in 114s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 02_silver.py ===
+bronze batches not yet in silver: ['20261107131656']
+batch 20261107131656: 2,950,029 in | 8,812 exact duplicates | 38,470 rejected | 2,902,747 inserted | 0 updated (silver v1) | months ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05']
++-----------------+-----+
+|reject_reason    |rows |
++-----------------+-----+
+|zero_distance    |20581|
+|negative_amount  |10272|
+|bad_timestamps   |3484 |
+|implausible_speed|2358 |
+|out_of_period    |1467 |
+|fare_outlier     |308  |
++-----------------+-----+
+
++------------+----------+----------+
+|silver_trips|first_day |last_day  |
++------------+----------+----------+
+|2902747     |2025-01-01|2025-05-31|
++------------+----------+----------+
+
+--- 02_silver.py finished in 198s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 03_gold.py ===
+silver batches not yet in gold: ['20261107131656'] -> months to rebuild: ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05'] (first run: full build)
+gold.daily_kpis: full build -> 151 rows
+gold.zone_daily: full build -> 9,966 rows
+gold.hourly_demand: full build -> 240 rows
+gold.payment_summary: full build -> 16 rows
+gold.borough_flows: full build -> 240 rows
+gold.downtown_daily: full build -> 302 rows
++------------+------+-----------+----------------+
+|pickup_month|trips |revenue    |revenue_per_trip|
++------------+------+-----------+----------------+
+|2025-01     |563379|1.8342999E7|32.56           |
+|2025-02     |524911|1.7044168E7|32.47           |
+|2025-03     |586472|1.9726791E7|33.64           |
+|2025-04     |595095|2.0171038E7|33.9            |
+|2025-05     |632890|2.1413964E7|33.84           |
++------------+------+-----------+----------------+
+
+--- 03_gold.py finished in 100s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 04_quality_and_history.py ===
+PASS  bronze rows = rows in landed files
+PASS  every bronze row processed by silver
+PASS  silver rows = rows inserted by MERGE
+PASS  rejected rows = rows in trips_rejected
+PASS  gold trips = silver trips
+PASS  gold revenue = silver revenue (within daily rounding)
+
+bronze 2,950,029 = exact duplicates 8,812 + rejected 38,470 + same-key duplicates 0 + superseded by corrections 0 + silver 2,902,747
++-----------------+-----+--------+-----+
+|problem          |found|injected|match|
++-----------------+-----+--------+-----+
+|negative_amount  |10272|10272   |true |
+|zero_distance    |20581|20581   |true |
+|bad_timestamps   |3484 |3484    |true |
+|out_of_period    |1467 |1467    |true |
+|implausible_speed|2358 |2358    |true |
+|fare_outlier     |308  |308     |true |
+|exact duplicates |8812 |8812    |true |
++-----------------+-----+--------+-----+
+
++-------+---------+--------+-------+-----------+
+|version|operation|inserted|updated|output_rows|
++-------+---------+--------+-------+-----------+
+|0      |WRITE    |NULL    |NULL   |0          |
+|1      |MERGE    |2902747 |0      |2902747    |
++-------+---------+--------+-------+-----------+
+
+silver.trips files: 5 -> 5 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id)
++-----------------------------------------+----+----------------------+-------+--------+
+|metric                                   |step|layer                 |rows   |injected|
++-----------------------------------------+----+----------------------+-------+--------+
+|Rows received                            |1   |Raw files             |2950029|NULL    |
+|Rows landed                              |2   |Bronze                |2950029|NULL    |
+|Exact duplicates removed                 |3   |Silver                |8812   |8812    |
+|Same trip sent twice (older copy dropped)|4   |Silver                |0      |NULL    |
+|Replaced by vendor corrections           |5   |Silver                |0      |NULL    |
+|Rejected: zero distance                  |6   |Silver                |20581  |20581   |
+|Rejected: negative amount                |7   |Silver                |10272  |10272   |
+|Rejected: bad timestamps                 |8   |Silver                |3484   |3484    |
+|Rejected: implausible speed              |9   |Silver                |2358   |2358    |
+|Rejected: out of period                  |10  |Silver                |1467   |1467    |
+|Rejected: fare outlier                   |11  |Silver                |308    |308     |
+|Clean trips                              |12  |Silver                |2902747|NULL    |
+|Trips in gold tables                     |13  |Gold                  |2902747|NULL    |
+|Unknown zone ID                          |14  |Silver (kept, flagged)|11774  |11774   |
+|Missing passenger count                  |15  |Silver (kept, flagged)|73393  |73393   |
++-----------------------------------------+----+----------------------+-------+--------+
+
+--- 04_quality_and_history.py finished in 123s
+
+################ ROUND: incremental  (landing: trips_2025-06.parquet, trips_2025-05_resend.parquet)
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 01_bronze.py ===
+7 files in landing, 5 already loaded, 2 new -> batch 20261107132551
+  new: trips_2025-05_resend.parquet 0.2 MB
+  new: trips_2025-06.parquet 20.1 MB
+trips_2025-05_resend.parquet: 4,614 rows | schema: renamed Airport_fee -> airport_fee
+trips_2025-06.parquet: 603,959 rows | schema: renamed Airport_fee -> airport_fee
+zones: 66 rows, weather: 181 days
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+|file_name                   |rows  |batch_id      |schema_notes                                                                     |
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+|trips_2025-01.parquet       |572648|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-02.parquet       |533509|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-03.parquet       |595982|20261107131656|cast passenger_count bigint -> double                                            |
+|trips_2025-04.parquet       |604755|20261107131656|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-05.parquet       |643135|20261107131656|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-05_resend.parquet|4614  |20261107132551|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-06.parquet       |603959|20261107132551|renamed Airport_fee -> airport_fee                                               |
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+
++-----------+-----+
+|bronze_rows|files|
++-----------+-----+
+|3558602    |7    |
++-----------+-----+
+
+--- 01_bronze.py finished in 50s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 02_silver.py ===
+bronze batches not yet in silver: ['20261107132551']
+batch 20261107132551: 608,573 in | 1,818 exact duplicates | 7,945 rejected | 594,367 inserted | 4,443 updated (silver v3) | months ['2025-05', '2025-06']
++-----------------+-----+
+|reject_reason    |rows |
++-----------------+-----+
+|zero_distance    |24803|
+|negative_amount  |12401|
+|bad_timestamps   |4252 |
+|implausible_speed|2834 |
+|out_of_period    |1771 |
+|fare_outlier     |354  |
++-----------------+-----+
+
++------------+----------+----------+
+|silver_trips|first_day |last_day  |
++------------+----------+----------+
+|3497114     |2025-01-01|2025-06-30|
++------------+----------+----------+
+
+--- 02_silver.py finished in 112s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 03_gold.py ===
+silver batches not yet in gold: ['20261107132551'] -> months to rebuild: ['2025-05', '2025-06']
+gold.daily_kpis: rebuilt 2025-05, 2025-06 -> 181 rows
+gold.zone_daily: rebuilt 2025-05, 2025-06 -> 11,946 rows
+gold.hourly_demand: rebuilt 2025-05, 2025-06 -> 288 rows
+gold.payment_summary: rebuilt 2025-05, 2025-06 -> 18 rows
+gold.borough_flows: rebuilt 2025-05, 2025-06 -> 288 rows
+gold.downtown_daily: rebuilt 2025-05, 2025-06 -> 362 rows
++------------+------+-----------+----------------+
+|pickup_month|trips |revenue    |revenue_per_trip|
++------------+------+-----------+----------------+
+|2025-01     |563379|1.8342999E7|32.56           |
+|2025-02     |524911|1.7044168E7|32.47           |
+|2025-03     |586472|1.9726791E7|33.64           |
+|2025-04     |595095|2.0171038E7|33.9            |
+|2025-05     |633061|2.1431013E7|33.85           |
+|2025-06     |594196|2.0122095E7|33.86           |
++------------+------+-----------+----------------+
+
+--- 03_gold.py finished in 85s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 04_quality_and_history.py ===
+PASS  bronze rows = rows in landed files
+PASS  every bronze row processed by silver
+PASS  silver rows = rows inserted by MERGE
+PASS  rejected rows = rows in trips_rejected
+PASS  gold trips = silver trips
+PASS  gold revenue = silver revenue (within daily rounding)
+
+bronze 3,558,602 = exact duplicates 10,630 + rejected 46,415 + same-key duplicates 0 + superseded by corrections 4,443 + silver 3,497,114
++-----------------+-----+--------+-----+
+|problem          |found|injected|match|
++-----------------+-----+--------+-----+
+|negative_amount  |12401|12401   |true |
+|zero_distance    |24803|24803   |true |
+|bad_timestamps   |4252 |4252    |true |
+|out_of_period    |1771 |1771    |true |
+|implausible_speed|2834 |2834    |true |
+|fare_outlier     |354  |354     |true |
+|exact duplicates |10630|10630   |true |
++-----------------+-----+--------+-----+
+
+all files loaded: silver rows 3,497,114 vs expected 3,497,114 -> MATCH
++-------+---------+--------+-------+-----------+
+|version|operation|inserted|updated|output_rows|
++-------+---------+--------+-------+-----------+
+|0      |WRITE    |NULL    |NULL   |0          |
+|1      |MERGE    |2902747 |0      |2902747    |
+|2      |OPTIMIZE |NULL    |NULL   |NULL       |
+|3      |MERGE    |594367  |4443   |1227257    |
++-------+---------+--------+-------+-----------+
+
+13 May, vendor 2 (silver v2 -> v3): trips 11,087 -> 11,258, miles 53,272.3 -> 58,188.2, revenue $366,459.04 -> $383,508.51 (+$17,049.47)
+silver.trips files: 6 -> 6 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id)
++-----------------------------------------+----+----------------------+-------+--------+
+|metric                                   |step|layer                 |rows   |injected|
++-----------------------------------------+----+----------------------+-------+--------+
+|Rows received                            |1   |Raw files             |3558602|NULL    |
+|Rows landed                              |2   |Bronze                |3558602|NULL    |
+|Exact duplicates removed                 |3   |Silver                |10630  |10630   |
+|Same trip sent twice (older copy dropped)|4   |Silver                |0      |NULL    |
+|Replaced by vendor corrections           |5   |Silver                |4443   |NULL    |
+|Rejected: zero distance                  |6   |Silver                |24803  |24803   |
+|Rejected: negative amount                |7   |Silver                |12401  |12401   |
+|Rejected: bad timestamps                 |8   |Silver                |4252   |4252    |
+|Rejected: implausible speed              |9   |Silver                |2834   |2834    |
+|Rejected: out of period                  |10  |Silver                |1771   |1771    |
+|Rejected: fare outlier                   |11  |Silver                |354    |354     |
+|Clean trips                              |12  |Silver                |3497114|NULL    |
+|Trips in gold tables                     |13  |Gold                  |3497114|NULL    |
+|Unknown zone ID                          |14  |Silver (kept, flagged)|14173  |14173   |
+|Missing passenger count                  |15  |Silver (kept, flagged)|88583  |88583   |
++-----------------------------------------+----+----------------------+-------+--------+
+
+--- 04_quality_and_history.py finished in 109s
+
+################ ROUND: rerun  (landing: no new files)
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 01_bronze.py ===
+7 files in landing, 7 already loaded, 0 new -> batch 20261107133148
+Nothing new to load.
+zones: 66 rows, weather: 181 days
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+|file_name                   |rows  |batch_id      |schema_notes                                                                     |
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+|trips_2025-01.parquet       |572648|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-02.parquet       |533509|20261107131656|cast passenger_count bigint -> double; missing cbd_congestion_fee (added as null)|
+|trips_2025-03.parquet       |595982|20261107131656|cast passenger_count bigint -> double                                            |
+|trips_2025-04.parquet       |604755|20261107131656|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-05.parquet       |643135|20261107131656|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-05_resend.parquet|4614  |20261107132551|renamed Airport_fee -> airport_fee                                               |
+|trips_2025-06.parquet       |603959|20261107132551|renamed Airport_fee -> airport_fee                                               |
++----------------------------+------+--------------+---------------------------------------------------------------------------------+
+
++-----------+-----+
+|bronze_rows|files|
++-----------+-----+
+|3558602    |7    |
++-----------+-----+
+
+--- 01_bronze.py finished in 12s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 02_silver.py ===
+bronze batches not yet in silver: none
++-----------------+-----+
+|reject_reason    |rows |
++-----------------+-----+
+|zero_distance    |24803|
+|negative_amount  |12401|
+|bad_timestamps   |4252 |
+|implausible_speed|2834 |
+|out_of_period    |1771 |
+|fare_outlier     |354  |
++-----------------+-----+
+
++------------+----------+----------+
+|silver_trips|first_day |last_day  |
++------------+----------+----------+
+|3497114     |2025-01-01|2025-06-30|
++------------+----------+----------+
+
+--- 02_silver.py finished in 24s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 03_gold.py ===
+silver batches not yet in gold: none -> months to rebuild: none
+Gold is up to date.
++------------+------+-----------+----------------+
+|pickup_month|trips |revenue    |revenue_per_trip|
++------------+------+-----------+----------------+
+|2025-01     |563379|1.8342999E7|32.56           |
+|2025-02     |524911|1.7044168E7|32.47           |
+|2025-03     |586472|1.9726791E7|33.64           |
+|2025-04     |595095|2.0171038E7|33.9            |
+|2025-05     |633061|2.1431013E7|33.85           |
+|2025-06     |594196|2.0122095E7|33.86           |
++------------+------+-----------+----------------+
+
+--- 03_gold.py finished in 4s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 04_quality_and_history.py ===
+PASS  bronze rows = rows in landed files
+PASS  every bronze row processed by silver
+PASS  silver rows = rows inserted by MERGE
+PASS  rejected rows = rows in trips_rejected
+PASS  gold trips = silver trips
+PASS  gold revenue = silver revenue (within daily rounding)
+
+bronze 3,558,602 = exact duplicates 10,630 + rejected 46,415 + same-key duplicates 0 + superseded by corrections 4,443 + silver 3,497,114
++-----------------+-----+--------+-----+
+|problem          |found|injected|match|
++-----------------+-----+--------+-----+
+|negative_amount  |12401|12401   |true |
+|zero_distance    |24803|24803   |true |
+|bad_timestamps   |4252 |4252    |true |
+|out_of_period    |1771 |1771    |true |
+|implausible_speed|2834 |2834    |true |
+|fare_outlier     |354  |354     |true |
+|exact duplicates |10630|10630   |true |
++-----------------+-----+--------+-----+
+
+all files loaded: silver rows 3,497,114 vs expected 3,497,114 -> MATCH
++-------+---------+--------+-------+-----------+
+|version|operation|inserted|updated|output_rows|
++-------+---------+--------+-------+-----------+
+|0      |WRITE    |NULL    |NULL   |0          |
+|1      |MERGE    |2902747 |0      |2902747    |
+|2      |OPTIMIZE |NULL    |NULL   |NULL       |
+|3      |MERGE    |594367  |4443   |1227257    |
+|4      |OPTIMIZE |NULL    |NULL   |NULL       |
++-------+---------+--------+-------+-----------+
+
+13 May, vendor 2 (silver v2 -> v3): trips 11,087 -> 11,258, miles 53,272.3 -> 58,188.2, revenue $366,459.04 -> $383,508.51 (+$17,049.47)
+silver.trips files: 6 -> 6 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id)
++-----------------------------------------+----+----------------------+-------+--------+
+|metric                                   |step|layer                 |rows   |injected|
++-----------------------------------------+----+----------------------+-------+--------+
+|Rows received                            |1   |Raw files             |3558602|NULL    |
+|Rows landed                              |2   |Bronze                |3558602|NULL    |
+|Exact duplicates removed                 |3   |Silver                |10630  |10630   |
+|Same trip sent twice (older copy dropped)|4   |Silver                |0      |NULL    |
+|Replaced by vendor corrections           |5   |Silver                |4443   |NULL    |
+|Rejected: zero distance                  |6   |Silver                |24803  |24803   |
+|Rejected: negative amount                |7   |Silver                |12401  |12401   |
+|Rejected: bad timestamps                 |8   |Silver                |4252   |4252    |
+|Rejected: implausible speed              |9   |Silver                |2834   |2834    |
+|Rejected: out of period                  |10  |Silver                |1771   |1771    |
+|Rejected: fare outlier                   |11  |Silver                |354    |354     |
+|Clean trips                              |12  |Silver                |3497114|NULL    |
+|Trips in gold tables                     |13  |Gold                  |3497114|NULL    |
+|Unknown zone ID                          |14  |Silver (kept, flagged)|14173  |14173   |
+|Missing passenger count                  |15  |Silver (kept, flagged)|88583  |88583   |
++-----------------------------------------+----+----------------------+-------+--------+
+
+--- 04_quality_and_history.py finished in 113s
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+
+=== 05_analysis.py ===
++------------+------+-----------+----------------+-------------+
+|pickup_month|trips |revenue    |revenue_per_trip|trips_per_day|
++------------+------+-----------+----------------+-------------+
+|2025-01     |563379|1.8342999E7|32.56           |18174.0      |
+|2025-02     |524911|1.7044168E7|32.47           |18747.0      |
+|2025-03     |586472|1.9726791E7|33.64           |18918.0      |
+|2025-04     |595095|2.0171038E7|33.9            |19837.0      |
+|2025-05     |633061|2.1431013E7|33.85           |20421.0      |
+|2025-06     |594196|2.0122095E7|33.86           |19807.0      |
++------------+------+-----------+----------------+-------------+
+
+total_trips: 3,497,114 clean trips, $116.8M revenue, $33.41 per trip (Jan-Jun 2025)
+trips_per_day_jan_jun: trips per day 18,174 in January -> 19,807 in June (+9.0%)
++--------+-----------+-------------+-------------+
+|day_type|pickup_hour|trips_per_day|avg_speed_mph|
++--------+-----------+-------------+-------------+
+|Weekday |0          |329.0        |18.4         |
+|Weekday |1          |343.0        |19.0         |
+|Weekday |2          |325.0        |19.7         |
+|Weekday |3          |297.0        |20.1         |
+|Weekday |4          |277.0        |20.1         |
+|Weekday |5          |305.0        |19.3         |
+|Weekday |6          |472.0        |16.7         |
+|Weekday |7          |810.0        |14.1         |
+|Weekday |8          |1163.0       |11.8         |
+|Weekday |9          |1246.0       |11.1         |
+|Weekday |10         |1072.0       |12.1         |
+|Weekday |11         |873.0        |13.5         |
+|Weekday |12         |808.0        |14.0         |
+|Weekday |13         |818.0        |13.9         |
+|Weekday |14         |863.0        |13.3         |
+|Weekday |15         |937.0        |12.2         |
+|Weekday |16         |1071.0       |11.0         |
+|Weekday |17         |1227.0       |10.0         |
+|Weekday |18         |1324.0       |10.4         |
+|Weekday |19         |1302.0       |12.0         |
++--------+-----------+-------------+-------------+
+only showing top 20 rows
+weekday_peak_hour: weekday peak 18:00-19:00 with 1,324 trips per hour at 10.4 mph (fastest hour: 20.1 mph)
+weekend_peak_hour: weekend peak 22:00 with 1,117 trips per hour; weekend 0:00-3:00 has 2.2x the weekday late-night demand
+cbd_fee_effect: the congestion fee cut trips touching Downtown by 7.0% (95% CI 6.5% to 7.4%) relative to the rest of the city
+cbd_fees_collected: Downtown share of trips 50.9% before -> 48.9% after; $2.95M in congestion fees collected Mar-Jun
+rain_demand_effect: rainy days (2 mm+) bring +12.2% trips (95% CI +11.0% to +13.5%), same weekday and month
+rain_speed_effect: and traffic is 11.2% slower
+rainy_days: 41 rainy days of 181
++------------+-------+------+--------+---------------+
+|payment_desc|trips  |share |avg_fare|tip_pct_of_fare|
++------------+-------+------+--------+---------------+
+|Credit card |2537193|0.7255|26.21   |0.2065         |
+|Cash        |915325 |0.2617|26.21   |0.0            |
+|No charge   |33522  |0.0096|26.21   |0.0            |
+|Dispute     |11074  |0.0032|26.35   |0.0            |
++------------+-------+------+--------+---------------+
+
+card_tip_pct: card riders tip 20.6% of the fare; card is 73% of trips. Cash tips are not recorded (cash shows 0%), so tip analysis uses card trips only
+card_share_trend: card share rose from 69.9% in January to 75.0% in June
+airport_revenue_share: airport trips are 3.5% of trips but 7.2% of revenue ($68.05 per trip)
++----------------------------+---------+------+---------+
+|zone                        |borough  |trips |revenue  |
++----------------------------+---------+------+---------+
+|Station Arts District       |Downtown |147397|4535909.0|
+|Calder International Airport|Airports |52125 |4143029.0|
+|Lakeshore Regional Airport  |Airports |65882 |3953225.0|
+|Copper Hill                 |Westfield|130668|3875029.0|
+|Beacon Yards                |Eastport |93776 |3139345.0|
+|Canal Plaza                 |Downtown |103279|3083062.0|
+|Elm Financial District      |Downtown |87750 |2821158.0|
+|Union Theatre Row           |Downtown |90458 |2661786.0|
+|Lantern Exchange            |Downtown |78684 |2628300.0|
+|Bridge Tower Row            |Downtown |75139 |2528086.0|
++----------------------------+---------+------+---------+
+
+top10_zone_share: the top 10 of 64 pick-up zones generate 29% of revenue; #1 is Station Arts District (Downtown) with $4.54M
+downtown_pickup_revenue_share: Downtown pick-ups generate 30% of revenue
++-----------------------------+--------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+|key                          |value               |finding                                                                                                                                  |
++-----------------------------+--------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+|total_trips                  |3497114.0           |3,497,114 clean trips, $116.8M revenue, $33.41 per trip (Jan-Jun 2025)                                                                   |
+|trips_per_day_jan_jun        |0.08985363706393756 |trips per day 18,174 in January -> 19,807 in June (+9.0%)                                                                                |
+|weekday_peak_hour            |18.0                |weekday peak 18:00-19:00 with 1,324 trips per hour at 10.4 mph (fastest hour: 20.1 mph)                                                  |
+|weekend_peak_hour            |22.0                |weekend peak 22:00 with 1,117 trips per hour; weekend 0:00-3:00 has 2.2x the weekday late-night demand                                   |
+|cbd_fee_effect               |-0.06959260337464424|the congestion fee cut trips touching Downtown by 7.0% (95% CI 6.5% to 7.4%) relative to the rest of the city                            |
+|cbd_fees_collected           |2951307.5           |Downtown share of trips 50.9% before -> 48.9% after; $2.95M in congestion fees collected Mar-Jun                                         |
+|rain_demand_effect           |0.12237244892305732 |rainy days (2 mm+) bring +12.2% trips (95% CI +11.0% to +13.5%), same weekday and month                                                  |
+|rain_speed_effect            |-0.11215967878066002|and traffic is 11.2% slower                                                                                                              |
+|rainy_days                   |41.0                |41 rainy days of 181                                                                                                                     |
+|card_tip_pct                 |0.2065              |card riders tip 20.6% of the fare; card is 73% of trips. Cash tips are not recorded (cash shows 0%), so tip analysis uses card trips only|
+|card_share_trend             |0.05109999999999992 |card share rose from 69.9% in January to 75.0% in June                                                                                   |
+|airport_revenue_share        |0.07160247760387427 |airport trips are 3.5% of trips but 7.2% of revenue ($68.05 per trip)                                                                    |
+|top10_zone_share             |0.2861920551839218  |the top 10 of 64 pick-up zones generate 29% of revenue; #1 is Station Arts District (Downtown) with $4.54M                               |
+|downtown_pickup_revenue_share|0.2956794714548961  |Downtown pick-ups generate 30% of revenue                                                                                                |
++-----------------------------+--------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+
+--- 05_analysis.py finished in 41s
+
+exported gold.daily_kpis: 181 rows
+exported gold.zone_daily: 11,946 rows
+exported gold.hourly_demand: 288 rows
+exported gold.payment_summary: 18 rows
+exported gold.borough_flows: 288 rows
+exported gold.downtown_daily: 362 rows
+exported gold.data_quality: 15 rows
+exported gold.pipeline_batches: 2 rows
+exported gold.findings: 14 rows

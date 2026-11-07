@@ -1,0 +1,45 @@
+relationship b5ca5f73-6ba0-5038-a88d-f85aeaa24955
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_zone_daily.date
+	toColumn: dim_date.date
+
+relationship 9aeb00b8-e60f-5425-8b1b-f941916f5ae3
+	fromColumn: fact_zone_daily.location_id
+	toColumn: dim_zone.location_id
+
+relationship 48c6da40-4fba-587f-9807-74445cb333fb
+	fromColumn: dim_zone.borough
+	toColumn: dim_borough.borough
+
+relationship 5089e664-7b2d-552c-a8bc-86eae6757443
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_downtown.date
+	toColumn: dim_date.date
+
+relationship eb3eece7-cc73-5ef4-aec9-c947af0e29de
+	fromColumn: dim_date.pickup_month
+	toColumn: dim_month.pickup_month
+
+relationship dc099fad-7733-5b77-9524-5d98915119f2
+	fromColumn: dim_date.day_type
+	toColumn: dim_daytype.day_type
+
+relationship 99ade27c-d31a-5803-a7bd-ccd70b961fe0
+	fromColumn: fact_hourly.pickup_month
+	toColumn: dim_month.pickup_month
+
+relationship 36801baa-1321-53a4-ac74-abeeaa171eb5
+	fromColumn: fact_hourly.day_type
+	toColumn: dim_daytype.day_type
+
+relationship 4e687560-48bc-56fc-aff5-b6ca1fefec77
+	fromColumn: fact_payment.pickup_month
+	toColumn: dim_month.pickup_month
+
+relationship 15b23482-5faa-5878-8f1d-0d53fb4689db
+	fromColumn: fact_flows.pickup_month
+	toColumn: dim_month.pickup_month
+
+relationship 9d7d8ec5-5ef8-5b8a-9f98-874fcb4e56f1
+	fromColumn: fact_flows.pu_borough
+	toColumn: dim_borough.borough

@@ -1,0 +1,564 @@
+table _Measures
+	lineageTag: 8135beb4-b77f-5f55-b390-ae6cccdbea1a
+
+	measure Trips = SUM ( fact_zone_daily[trips] )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 4b28e7a4-3469-573f-8a7b-42f847f64e9c
+
+	measure Revenue = SUM ( fact_zone_daily[revenue] )
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 1 Trips
+		lineageTag: ed54111a-f108-5bfd-ba4e-011e5b397b35
+
+	measure 'Fare Revenue' = SUM ( fact_zone_daily[fare_revenue] )
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 1 Trips
+		lineageTag: d3f207d1-9b00-53f8-bece-d7d5c9fb061d
+
+	measure 'Revenue per Trip' = DIVIDE ( [Revenue], [Trips] )
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 1 Trips
+		lineageTag: 872c75c7-171e-549d-adff-1f20eb1304c1
+
+	measure 'Avg Fare' = DIVIDE ( [Fare Revenue], [Trips] )
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 1 Trips
+		lineageTag: 7aff75ba-4da3-50a4-84a6-2ba4a62638b1
+
+	measure 'Avg Distance (mi)' = DIVIDE ( SUM ( fact_zone_daily[distance_mi] ), [Trips] )
+		formatString: #,0.00
+		displayFolder: 1 Trips
+		lineageTag: fabdce64-fb93-5c2e-8536-cbba27514c24
+
+	measure 'Avg Speed (mph)' = DIVIDE ( SUM ( fact_zone_daily[distance_mi] ), SUM ( fact_zone_daily[duration_min] ) / 60 )
+		formatString: #,0.0
+		displayFolder: 1 Trips
+		lineageTag: 447cf5ea-8dd7-5320-a312-1eaaaaabd9f4
+
+	measure 'Avg Duration (min)' = DIVIDE ( SUM ( fact_zone_daily[duration_min] ), [Trips] )
+		formatString: #,0.0
+		displayFolder: 1 Trips
+		lineageTag: ce66e677-80b5-5cbc-bc18-2e1e14e27d21
+
+	measure 'Card Tip %' = DIVIDE ( SUM ( fact_zone_daily[card_tips] ), SUM ( fact_zone_daily[card_fares] ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1 Trips
+		lineageTag: 028078f4-46c2-5824-8dc2-fc461e7670af
+
+	measure 'Card Share' = DIVIDE ( SUM ( fact_zone_daily[card_trips] ), [Trips] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1 Trips
+		lineageTag: 6c5c976f-bd23-5890-82c5-c80ec097a6f6
+
+	measure Days = DISTINCTCOUNT ( fact_zone_daily[date] )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 9dbdb0af-d52a-57bf-bdab-23cd3dc06aa8
+
+	measure 'Trips per Day' = DIVIDE ( [Trips], [Days] )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 087fbf51-2cc2-5978-a8e7-5ec1b824f0c2
+
+	measure 'Revenue per Day' = DIVIDE ( [Revenue], [Days] )
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 1 Trips
+		lineageTag: 4861ed09-9bd5-5a26-bdc4-a36611e62d24
+
+	measure 'Trips per Day Growth' = VAR f = MIN ( dim_date[pickup_month] ) VAR l = MAX ( dim_date[pickup_month] ) RETURN DIVIDE ( CALCULATE ( [Trips per Day], dim_date[pickup_month] = l ), CALCULATE ( [Trips per Day], dim_date[pickup_month] = f ) ) - 1
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 1 Trips
+		lineageTag: a0d12c25-5043-51ef-809d-e634b02d646b
+
+	measure 'Zone Revenue Rank' = IF ( ISINSCOPE ( dim_zone[zone] ), RANKX ( ALLSELECTED ( dim_zone[zone], dim_zone[borough] ), [Revenue], , DESC, DENSE ) )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: e8cd6579-31d3-5616-9f66-7f2e07fccfca
+
+	measure Zones = DISTINCTCOUNT ( dim_zone[location_id] )
+		formatString: #,0
+		isHidden
+		displayFolder: 1 Trips
+		lineageTag: a96c8fbd-f3cf-598e-9496-20b532436b00
+
+	measure 'Rainy Days' = CALCULATE ( COUNTROWS ( dim_date ), dim_date[weather] = "Rain (2 mm+)" )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 2c191a90-1885-5945-97f8-0a84ddc2cab4
+
+	measure 'Trips per Day (Dry)' = CALCULATE ( [Trips per Day], dim_date[weather] = "Dry", ISBLANK ( dim_date[holiday] ) )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 5256c423-9e9b-5205-a4e1-66f917ae5b29
+
+	measure 'Trips per Day (Rain)' = CALCULATE ( [Trips per Day], dim_date[weather] = "Rain (2 mm+)", ISBLANK ( dim_date[holiday] ) )
+		formatString: #,0
+		displayFolder: 1 Trips
+		lineageTag: 0754c630-4c52-5b40-bf1c-3034b3539937
+
+	measure 'Precipitation (mm)' = SUM ( dim_date[precip_mm] )
+		formatString: #,0.0
+		displayFolder: 1 Trips
+		lineageTag: c6754185-952e-5c32-96c2-a65bab68f80f
+
+	measure 'Trips per Hour' = DIVIDE ( SUM ( fact_hourly[trips] ), SUM ( fact_hourly[days] ) )
+		formatString: #,0
+		displayFolder: 2 Demand
+		lineageTag: 7d081123-af97-5cb2-bf70-aefee7f866ff
+
+	measure 'Speed by Hour (mph)' = DIVIDE ( SUM ( fact_hourly[distance_mi] ), SUM ( fact_hourly[duration_min] ) / 60 )
+		formatString: #,0.0
+		displayFolder: 2 Demand
+		lineageTag: 0bd01452-85b1-5b25-9e5f-35732394e99c
+
+	measure 'Peak Trips per Hour' = MAXX ( VALUES ( fact_hourly[pickup_hour] ), CALCULATE ( [Trips per Hour], fact_hourly[day_type] = "Weekday" ) )
+		formatString: #,0
+		displayFolder: 2 Demand
+		lineageTag: 8725acd5-4ca5-5fdf-9f91-bac8e510ed7d
+
+	measure 'Peak Hour Label' = VAR t = ADDCOLUMNS ( VALUES ( fact_hourly[pickup_hour] ), "@v", CALCULATE ( [Trips per Hour], fact_hourly[day_type] = "Weekday" ) ) VAR h = MAXX ( TOPN ( 1, t, [@v], DESC ), fact_hourly[pickup_hour] ) RETURN "Weekdays, " & h & ":00–" & ( h + 1 ) & ":00"
+		displayFolder: 2 Demand
+		lineageTag: ec9bdda0-4119-50f6-80e7-d574c667245a
+
+	measure 'Slowest Speed (mph)' = MINX ( VALUES ( fact_hourly[pickup_hour] ), CALCULATE ( [Speed by Hour (mph)], fact_hourly[day_type] = "Weekday" ) )
+		formatString: #,0.0
+		displayFolder: 2 Demand
+		lineageTag: 9720f672-084f-5a6a-826d-ce8e38c8c499
+
+	measure 'Slowest Hour Label' = VAR t = ADDCOLUMNS ( VALUES ( fact_hourly[pickup_hour] ), "@v", CALCULATE ( [Speed by Hour (mph)], fact_hourly[day_type] = "Weekday" ) ) VAR h = MAXX ( TOPN ( 1, t, [@v], ASC ), fact_hourly[pickup_hour] ) RETURN "Weekdays at " & h & ":00 (night: " & FORMAT ( MAXX ( t, [@v] ), "0" ) & ")"
+		displayFolder: 2 Demand
+		lineageTag: 38649ada-7cc4-5498-bffe-4efdc5216cee
+
+	measure 'Late Night Weekend Multiple' = VAR we = CALCULATE ( [Trips per Hour], fact_hourly[day_type] = "Weekend", fact_hourly[pickup_hour] < 3 ) VAR wd = CALCULATE ( [Trips per Hour], fact_hourly[day_type] = "Weekday", fact_hourly[pickup_hour] < 3 ) RETURN DIVIDE ( we, wd )
+		formatString: 0.0"x"
+		displayFolder: 2 Demand
+		lineageTag: ca936f91-960e-5aaf-9da1-294f635f2f6a
+
+	measure 'Hour Heat' = VAR v = [Trips per Hour] VAR mx = CALCULATE ( MAXX ( SUMMARIZE ( fact_hourly, fact_hourly[day_type], fact_hourly[pickup_hour] ), [Trips per Hour] ), ALLSELECTED ( fact_hourly ), ALLSELECTED ( dim_daytype ) ) VAR r = DIVIDE ( v, mx ) RETURN SWITCH ( TRUE (), ISBLANK ( v ), BLANK (), r > 0.85, "#1F4E79", r > 0.65, "#4F7BA6", r > 0.45, "#8FB0CF", r > 0.25, "#C9D8E8", "#EEF3F8" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: cb2f6f40-8057-59c3-b340-33a771a6dd69
+
+	measure 'Hour Heat Font' = IF ( DIVIDE ( [Trips per Hour], CALCULATE ( MAXX ( SUMMARIZE ( fact_hourly, fact_hourly[day_type], fact_hourly[pickup_hour] ), [Trips per Hour] ), ALLSELECTED ( fact_hourly ), ALLSELECTED ( dim_daytype ) ) ) > 0.65, "#FFFFFF", "#1E293B" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: b947eca9-90b4-57fb-ba92-1ffcc3f552ba
+
+	measure 'Rain Demand Effect' = CALCULATE ( MAX ( findings[value] ), findings[key] = "rain_demand_effect" )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 2 Demand
+		lineageTag: 2efb161e-fef9-5746-a5ea-9b53da5a321c
+
+	measure 'Rain Speed Effect' = CALCULATE ( MAX ( findings[value] ), findings[key] = "rain_speed_effect" )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 2 Demand
+		lineageTag: e61df516-7af6-5c14-a970-0ed6be6fe605
+
+	measure 'Downtown Trips' = CALCULATE ( SUM ( fact_downtown[trips] ), fact_downtown[segment] = "Touches Downtown" )
+		formatString: #,0
+		displayFolder: 3 Downtown fee
+		lineageTag: 77551dfc-b5ca-554b-b40c-c55e65163c37
+
+	measure 'Other Trips' = CALCULATE ( SUM ( fact_downtown[trips] ), fact_downtown[segment] = "Elsewhere" )
+		formatString: #,0
+		displayFolder: 3 Downtown fee
+		lineageTag: ad371533-38ec-5510-bd31-79a6412f2558
+
+	measure 'Downtown Share' = DIVIDE ( [Downtown Trips], [Downtown Trips] + [Other Trips] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 3 Downtown fee
+		lineageTag: ba4e3407-8872-5a74-a273-d758c5390ca5
+
+	measure 'Downtown Ratio' = DIVIDE ( [Downtown Trips], [Other Trips] )
+		formatString: #,0.00
+		displayFolder: 3 Downtown fee
+		lineageTag: 746fb973-9df5-509a-8329-04ba599761f6
+
+	measure 'Full Week' = NOT ( ISINSCOPE ( dim_date[week_start] ) && COUNTROWS ( dim_date ) < 7 )
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 74755095-96fe-5e6b-a61f-c14d83656a39
+
+	measure 'Downtown Ratio Before Fee' = IF ( [Full Week] && MIN ( dim_date[date] ) < DATE ( 2025, 3, 1 ), [Downtown Ratio] )
+		formatString: #,0.00
+		displayFolder: 3 Downtown fee
+		lineageTag: 25b2d633-3e89-5fbb-b00f-bc2198511c1f
+
+	measure 'Downtown Ratio After Fee' = IF ( [Full Week] && MAX ( dim_date[date] ) >= DATE ( 2025, 3, 1 ), [Downtown Ratio] )
+		formatString: #,0.00
+		displayFolder: 3 Downtown fee
+		lineageTag: fde4dec5-1fd1-50b5-84f9-96f3c90c24ee
+
+	measure 'Downtown Share Before' = CALCULATE ( [Downtown Share], dim_date[date] < DATE ( 2025, 3, 1 ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 3 Downtown fee
+		lineageTag: fab3f5d1-13ba-5677-ba1d-b01e4e25452b
+
+	measure 'Downtown Share After' = CALCULATE ( [Downtown Share], dim_date[date] >= DATE ( 2025, 3, 1 ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 3 Downtown fee
+		lineageTag: f2a2997c-3b9b-540b-a88d-97c1e9f3af7e
+
+	measure 'Segment Trips per Day' = DIVIDE ( SUM ( fact_downtown[trips] ), DISTINCTCOUNT ( fact_downtown[date] ) )
+		formatString: #,0
+		displayFolder: 3 Downtown fee
+		lineageTag: a5510b10-ff21-59bc-a1eb-5d19a454a0a0
+
+	measure 'Segment Index (Jan-Feb = 100)' = DIVIDE ( [Segment Trips per Day], CALCULATE ( [Segment Trips per Day], REMOVEFILTERS ( dim_date ), REMOVEFILTERS ( dim_month ), dim_date[date] < DATE ( 2025, 3, 1 ) ) ) * 100
+		formatString: #,0.0
+		displayFolder: 3 Downtown fee
+		lineageTag: a4f8c999-fcca-5e14-b277-d16a26bb4b4e
+
+	measure 'Fee Effect' = CALCULATE ( MAX ( findings[value] ), findings[key] = "cbd_fee_effect" )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 3 Downtown fee
+		lineageTag: ca15c533-6214-59b4-8c00-785b3cca1c50
+
+	measure 'Fees Collected' = SUM ( fact_downtown[cbd_fees] )
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 3 Downtown fee
+		lineageTag: 57fb5a0a-14a5-5af7-b7e0-780bc10de145
+
+	measure 'Downtown Trips per Day' = DIVIDE ( [Downtown Trips], DISTINCTCOUNT ( fact_downtown[date] ) )
+		formatString: #,0
+		displayFolder: 3 Downtown fee
+		lineageTag: 7e94fe35-f007-5f35-a4f6-8f7f460e83fa
+
+	measure 'Payment Trips' = SUM ( fact_payment[trips] )
+		formatString: #,0
+		displayFolder: 4 Payments
+		lineageTag: 0c3305ab-62ea-52bd-b2a4-8b284844b988
+
+	measure 'Payment Share' = DIVIDE ( [Payment Trips], CALCULATE ( [Payment Trips], REMOVEFILTERS ( fact_payment[payment_desc], fact_payment[payment_type] ) ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: ab993ec4-6ca8-534c-ab57-7daa64cbc0d1
+
+	measure 'Tip % of Fare' = DIVIDE ( SUM ( fact_payment[tips] ), SUM ( fact_payment[fare_revenue] ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: 5cefa21c-0cd0-58fa-99b3-284baba9ac74
+
+	measure 'Card Share (Payments)' = CALCULATE ( [Payment Share], fact_payment[payment_type] = 1 )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: 0cf71374-352f-533b-a328-82388aab1c22
+
+	measure 'Flow Trips' = SUM ( fact_flows[trips] )
+		formatString: #,0
+		displayFolder: 4 Payments
+		lineageTag: 1965b539-2349-5659-8c70-055d9535822f
+
+	measure 'Airport Trips' = CALCULATE ( [Flow Trips], FILTER ( fact_flows, fact_flows[pu_borough] = "Airports" || fact_flows[do_borough] = "Airports" ) )
+		formatString: #,0
+		displayFolder: 4 Payments
+		lineageTag: db8ba86b-d40e-5b30-b657-060128236646
+
+	measure 'Airport Revenue' = CALCULATE ( SUM ( fact_flows[revenue] ), FILTER ( fact_flows, fact_flows[pu_borough] = "Airports" || fact_flows[do_borough] = "Airports" ) )
+		formatString: \$#,0;(\$#,0);\$#,0
+		displayFolder: 4 Payments
+		lineageTag: 489b0380-d0d8-5307-bed2-86563be313ca
+
+	measure 'Airport Trip Share' = DIVIDE ( [Airport Trips], [Flow Trips] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: 8d130f61-8a4a-5dbf-85de-52a3e88bf5ce
+
+	measure 'Airport Revenue Share' = DIVIDE ( [Airport Revenue], SUM ( fact_flows[revenue] ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: 01fad8a9-6314-518e-8bfb-9c44f5b3b9e3
+
+	measure 'Airport Revenue per Trip' = DIVIDE ( [Airport Revenue], [Airport Trips] )
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 4 Payments
+		lineageTag: 70665320-af09-574c-95ce-13d45ef61aa4
+
+	measure 'Flow Share' = DIVIDE ( [Flow Trips], CALCULATE ( [Flow Trips], ALLSELECTED ( fact_flows[do_borough] ), ALLSELECTED ( dim_borough ) ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: b385fe7a-0863-558e-ba58-af7cf5e8404f
+
+	measure 'Flow Heat' = VAR s = [Flow Share] RETURN SWITCH ( TRUE (), ISBLANK ( s ), BLANK (), s > 0.12, "#1F4E79", s > 0.06, "#4F7BA6", s > 0.03, "#8FB0CF", s > 0.01, "#C9D8E8", "#F3F6FA" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: 926eac5e-87af-520e-97a6-0e44322e7b2f
+
+	measure 'Flow Heat Font' = IF ( [Flow Share] > 0.06, "#FFFFFF", "#1E293B" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: d374ad59-8d23-56e1-a477-a09e30f50859
+
+	measure 'Top 10 Zone Share' = CALCULATE ( MAX ( findings[value] ), findings[key] = "top10_zone_share" )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4 Payments
+		lineageTag: 41fb0e7b-aef3-5fc8-b9be-a14c6b475527
+
+	measure 'DQ Rows' = SUM ( data_quality[rows] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: aaab069f-20ff-57cf-8ab2-b2f11923a500
+
+	measure 'DQ Injected' = SUM ( data_quality[injected] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 76364b1a-5764-5eb6-beae-44b846abbd03
+
+	measure 'Raw Rows' = CALCULATE ( [DQ Rows], data_quality[metric] = "Rows received" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 83d7db3f-2581-5adc-9dd1-f205c722cd30
+
+	measure 'Rejected Rows' = CALCULATE ( [DQ Rows], LEFT ( data_quality[metric], 9 ) = "Rejected:" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 9b88e6fa-7c03-56c6-88e9-7d22f0a515c7
+
+	measure 'Duplicate Rows' = CALCULATE ( [DQ Rows], data_quality[metric] IN { "Exact duplicates removed", "Same trip sent twice (older copy dropped)" } )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 2e0b634d-de02-547c-90e3-74eb7ec1a506
+
+	measure 'Corrected Rows' = CALCULATE ( [DQ Rows], data_quality[metric] = "Replaced by vendor corrections" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: f5d401d7-08e6-55e5-b560-aec1c7e08fe8
+
+	measure 'Clean Trips' = CALCULATE ( [DQ Rows], data_quality[metric] = "Clean trips" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 5ee3f116-dfa1-5f3a-81ce-a62fd39dc991
+
+	measure 'Gold Trips' = CALCULATE ( [DQ Rows], data_quality[metric] = "Trips in gold tables" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 77a9981e-d8d6-599f-8644-2152ad6f47a8
+
+	measure 'Removed Rows (Chart)' = CALCULATE ( [DQ Rows], data_quality[layer] = "Silver", data_quality[metric] <> "Clean trips" )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 0ef8c837-da61-53ee-ab8c-c34250c2076a
+
+	measure 'Unaccounted Rows' = [Raw Rows] - [Rejected Rows] - [Duplicate Rows] - [Corrected Rows] - [Clean Trips]
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 0d584a1e-66b1-5b49-a7f3-05b30ebc992b
+
+	measure 'Reconciled Label' = IF ( [Unaccounted Rows] = 0 && [Gold Trips] = [Clean Trips], "✓ 0 rows unaccounted for", "✗ check pipeline" )
+		displayFolder: 5 Pipeline
+		lineageTag: 4b8dab88-f188-5aae-923c-f040f9da42a2
+
+	measure 'DQ Match' = IF ( ISBLANK ( [DQ Injected] ), BLANK (), IF ( [DQ Rows] = [DQ Injected], "✓", "✗" ) )
+		displayFolder: 5 Pipeline
+		lineageTag: 0e4d19bd-1bea-505e-aa47-1708feb111f2
+
+	measure 'Removed Share' = DIVIDE ( [Raw Rows] - [Clean Trips], [Raw Rows] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5 Pipeline
+		lineageTag: 7ff7747a-2d03-586f-850f-1cc4b7f807dc
+
+	measure 'Batch Rows In' = SUM ( pipeline_batches[rows_in] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 7040b4a7-7611-5935-b7c9-6bfebf5b951d
+
+	measure 'Batch Inserted' = SUM ( pipeline_batches[inserted] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: d32b00ce-1fb7-5c96-a84c-659c6ffb1c3e
+
+	measure 'Batch Updated' = SUM ( pipeline_batches[updated] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 82895332-08bd-52e9-971d-2831ae13393d
+
+	measure 'Batch Rejected' = SUM ( pipeline_batches[rejected] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: eda1cb31-d8b2-5809-ac6b-a973b9d8f090
+
+	measure 'Batch Duplicates' = SUM ( pipeline_batches[exact_duplicates] ) + SUM ( pipeline_batches[same_key_duplicates] )
+		formatString: #,0
+		displayFolder: 5 Pipeline
+		lineageTag: 29c4f6ef-b042-5e0a-826b-85f5f56df3fe
+
+	measure 'Removed Color' = IF ( LEFT ( SELECTEDVALUE ( data_quality[metric] ), 9 ) = "Rejected:", "#B5523B", "#D08C2E" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: 1b060dba-9acb-5270-adc6-5ec28efe091d
+
+	measure 'Match Color' = IF ( [DQ Match] = "✓", "#0E7C86", "#B5523B" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: bb7dbd02-fd98-5d09-83d3-534a0a6bdc00
+
+	measure 'Filter Context' = IF ( ISFILTERED ( dim_month[month] ), CONCATENATEX ( VALUES ( dim_month[month] ), dim_month[month], ", ", dim_month[month], ASC ), "Jan – Jun 2025" ) & "   ·   " & IF ( ISFILTERED ( dim_borough[borough] ), CONCATENATEX ( VALUES ( dim_borough[borough] ), dim_borough[borough], ", ", dim_borough[borough], ASC ), "All boroughs" ) & "   ·   " & IF ( ISFILTERED ( dim_daytype[day_type] ), CONCATENATEX ( VALUES ( dim_daytype[day_type] ), dim_daytype[day_type], ", ", dim_daytype[day_type], ASC ), "All days" )
+		displayFolder: 7 Dynamic text
+		lineageTag: 3c7e9b2f-697d-50c5-965a-a87a5196665b
+
+	measure 'Blank Text' = ""
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: a57fc209-053b-56a0-8673-8a68aee14d92
+
+	measure 'Growth Label' = FORMAT ( [Trips per Day Growth], "▲ 0.0%;▼ 0.0%;● 0.0%" ) & " trips/day, first to last month"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 4e26b7b8-b7a5-579e-ab26-af2ae8fd83e4
+
+	measure 'Growth Color' = IF ( [Trips per Day Growth] >= 0, "#0E7C86", "#B5523B" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: b51009a4-8d7d-504c-9258-3514371887e6
+
+	measure 'Note Revenue' = FORMAT ( [Revenue per Day], "$#,0" ) & " per day"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 3477fbd5-28b4-5a23-b580-13a334aa5a40
+
+	measure 'Note Per Trip' = "Fare " & FORMAT ( [Avg Fare], "$0.00" ) & " + surcharges, tolls, tips"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: ebc6f7d7-4021-50c0-a429-2073bcc2d9ed
+
+	measure 'Note Speed' = FORMAT ( [Avg Distance (mi)], "0.0" ) & " mi in " & FORMAT ( [Avg Duration (min)], "0" ) & " min on average"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: ef877127-70cb-5488-addb-958b20c71d05
+
+	measure 'Note Tips' = "Card trips only (cash not recorded)"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: cc8b90e9-4277-51d4-9c82-afc58c52faad
+
+	measure 'Note Peak' = [Peak Hour Label]
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: a4b629be-62ae-5257-b5e4-10a1acba3952
+
+	measure 'Note Slow' = [Slowest Hour Label]
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: f22894b2-622c-53fd-82ca-2e0eba99f2d8
+
+	measure 'Note Late' = "Weekend vs weekday, 0:00–3:00"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: e2640eef-50d9-5105-9334-5be0cb0b7632
+
+	measure 'Note Rain' = "Same weekday & month"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 55455fcd-4178-561b-a12d-7652cf7ef7dc
+
+	measure 'Note Rain Speed' = "Speed on rainy days"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 34357a5b-504f-58ad-b7b9-202c1b28ea76
+
+	measure 'Note Fee' = "Relative to rest of city"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: e48d12a6-0d0c-5b22-b94f-1b4114700c95
+
+	measure 'Note Share Before' = "1 Jan – 28 Feb"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: d7029954-46dc-568a-855d-0c649d936eea
+
+	measure 'Note Share After' = "1 Mar – 30 Jun"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 311288c3-0292-5714-9023-58ab4971205b
+
+	measure 'Note Fees' = "$2.50 per trip touching Downtown"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 6f8307c0-50c5-5f48-9f08-d5f97135d6af
+
+	measure 'Note DT per Day' = "Touching Downtown"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: ed1a9052-1913-5ef7-bf3b-bd6d96fd1b78
+
+	measure 'Note Card' = "Of all trips, selected period"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: dcd3699c-fa34-56d6-9b86-ba3b2dc96485
+
+	measure 'Note Airport' = FORMAT ( [Airport Trip Share], "0.0%" ) & " of trips · " & FORMAT ( [Airport Revenue per Trip], "$0" ) & "/trip"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: bd63d2f0-b05d-53bd-a564-def15f915693
+
+	measure 'Note Top10' = "Share of revenue, of 64 zones"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: c8b7aeaf-0f27-5d38-9d35-685c616ea03f
+
+	measure 'Note Raw' = "Rows in the monthly files + re-send"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 19394cf4-60ec-5086-9056-0b9bb57f6980
+
+	measure 'Note Rejected' = FORMAT ( DIVIDE ( [Rejected Rows], [Raw Rows] ), "0.0%" ) & " of raw rows, 6 rules"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 2d59da2e-c6e0-5197-a4fe-054a54d3fa54
+
+	measure 'Note Dups' = "+ " & FORMAT ( [Corrected Rows], "#,0" ) & " corrected by vendor"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: e701837e-f376-532e-9089-5960a5ce81f7
+
+	measure 'Note Clean' = "In silver and gold"
+		isHidden
+		displayFolder: 9 Helpers
+		lineageTag: 2273eab2-ea2f-5250-accf-cc845f7fda93
+
+	measure 'Title Tooltip' = FORMAT ( MAX ( dim_date[date] ), "dddd d mmm yyyy" ) & IF ( ISBLANK ( MAX ( dim_date[holiday] ) ), "", "  ·  " & MAX ( dim_date[holiday] ) )
+		displayFolder: 7 Dynamic text
+		lineageTag: 65f35a96-bd8a-5c5c-9926-f2e1f883fe58
+
+	measure 'Title Daily' = "Trips per day  ·  gold bars are rainy days (" & [Rainy Days] & " of " & COUNTROWS ( dim_date ) & ")"
+		displayFolder: 7 Dynamic text
+		lineageTag: 6f1f089a-e03f-585b-a0a0-93ae90a50ca2
+
+	measure 'Title Zone' = SELECTEDVALUE ( dim_zone[zone], "Multiple zones" ) & "  ·  " & SELECTEDVALUE ( dim_zone[borough], "" ) & " zone detail"
+		displayFolder: 7 Dynamic text
+		lineageTag: e6a19468-fff3-5e1a-bd39-cb981e2e328b
+
+	measure 'Title Fee' = "Downtown trips per other trip, weekly:  fell " & FORMAT ( -[Fee Effect], "0.0%" ) & " after the fee (difference-in-differences)"
+		displayFolder: 7 Dynamic text
+		lineageTag: 73bc6767-8823-5a4c-b13f-fb6370b2b1c6
+
+	measure 'Weather Label' = IF ( HASONEVALUE ( dim_date[date] ), MAX ( dim_date[weather] ) & "  ·  " & FORMAT ( [Precipitation (mm)], "0.0" ) & " mm" )
+		displayFolder: 7 Dynamic text
+		lineageTag: 530a58eb-ed60-5f44-bf16-0a1633667646
+
+	measure 'Day Color' = IF ( MAX ( dim_date[weather] ) = "Rain (2 mm+)", "#C8A24A", "#1F4E79" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: 581b83e1-2a77-55ac-9145-22219a401378
+
+	measure 'Borough Color' = SWITCH ( SELECTEDVALUE ( dim_borough[borough] ), "Downtown", "#1F4E79", "Airports", "#C8A24A", "#B8C2CF" )
+		isHidden
+		displayFolder: 8 Formatting
+		lineageTag: 6c5eb08b-7936-59fa-9020-85c49cea6baf
+
+	column Value
+		dataType: string
+		isHidden
+		lineageTag: a5295db3-757f-5e67-bb09-c8669071ddc0
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				#table(type table [Value = text], {})
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,148 @@
+{
+  "note": "Parameters used by the simulator. Synthetic data; values are exact by construction.",
+  "period": [
+    "2025-01-01",
+    "2025-06-30"
+  ],
+  "cbd_fee": {
+    "start": "2025-03-01",
+    "fee_usd": 2.5,
+    "trips_touching_downtown_change": -0.06999999999999995
+  },
+  "rain": {
+    "threshold_mm": 2.0,
+    "demand_multiplier": 1.12,
+    "speed_multiplier": 0.88
+  },
+  "day_of_week_factor_mon_to_sun": [
+    0.92,
+    0.98,
+    1.0,
+    1.06,
+    1.14,
+    1.08,
+    0.86
+  ],
+  "holidays": {
+    "2025-01-01": {
+      "name": "New Year's Day",
+      "factor": 0.78
+    },
+    "2025-01-20": {
+      "name": "Martin Luther King Jr. Day",
+      "factor": 0.86
+    },
+    "2025-02-17": {
+      "name": "Presidents' Day",
+      "factor": 0.88
+    },
+    "2025-05-26": {
+      "name": "Memorial Day",
+      "factor": 0.8
+    }
+  },
+  "trend_per_month": 0.01,
+  "card_tip_presets": {
+    "0": 0.08,
+    "0.15": 0.22,
+    "0.20": 0.38,
+    "0.25": 0.2,
+    "0.30": 0.12
+  },
+  "cash_tips_recorded": false,
+  "airport_flat_fare_downtown_cci": 55.0,
+  "vendor2_meter_fault_2025_05_13": {
+    "distance_under_recording": 0.18000000000000005,
+    "affected_trips": 4443,
+    "missed_trips": 171
+  },
+  "injected_rejects": {
+    "negative_amount": 12401,
+    "zero_distance": 24803,
+    "bad_timestamps": 4252,
+    "out_of_period": 1771,
+    "implausible_speed": 2834,
+    "fare_outlier": 354
+  },
+  "injected_duplicates": 10630,
+  "unknown_zone_rows": 14173,
+  "missing_or_zero_passenger_count": 88583,
+  "file_rows": {
+    "trips_2025-01.parquet": 572648,
+    "trips_2025-02.parquet": 533509,
+    "trips_2025-03.parquet": 595982,
+    "trips_2025-04.parquet": 604755,
+    "trips_2025-05.parquet": 643135,
+    "trips_2025-06.parquet": 603959,
+    "trips_2025-05_resend.parquet": 4614
+  },
+  "injected_by_file": {
+    "trips_2025-01.parquet": {
+      "negative_amount": 1983,
+      "zero_distance": 3989,
+      "bad_timestamps": 721,
+      "out_of_period": 271,
+      "implausible_speed": 461,
+      "fare_outlier": 70,
+      "duplicates": 1774,
+      "unknown_zone": 2239,
+      "missing_passenger_count": 14296
+    },
+    "trips_2025-02.parquet": {
+      "negative_amount": 1844,
+      "zero_distance": 3756,
+      "bad_timestamps": 639,
+      "out_of_period": 265,
+      "implausible_speed": 409,
+      "fare_outlier": 59,
+      "duplicates": 1626,
+      "unknown_zone": 2112,
+      "missing_passenger_count": 13164
+    },
+    "trips_2025-03.parquet": {
+      "negative_amount": 2073,
+      "zero_distance": 4183,
+      "bad_timestamps": 675,
+      "out_of_period": 288,
+      "implausible_speed": 470,
+      "fare_outlier": 70,
+      "duplicates": 1751,
+      "unknown_zone": 2333,
+      "missing_passenger_count": 14830
+    },
+    "trips_2025-04.parquet": {
+      "negative_amount": 2135,
+      "zero_distance": 4164,
+      "bad_timestamps": 710,
+      "out_of_period": 305,
+      "implausible_speed": 507,
+      "fare_outlier": 49,
+      "duplicates": 1790,
+      "unknown_zone": 2459,
+      "missing_passenger_count": 15270
+    },
+    "trips_2025-05.parquet": {
+      "negative_amount": 2237,
+      "zero_distance": 4489,
+      "bad_timestamps": 739,
+      "out_of_period": 338,
+      "implausible_speed": 511,
+      "fare_outlier": 60,
+      "duplicates": 1871,
+      "unknown_zone": 2631,
+      "missing_passenger_count": 15833
+    },
+    "trips_2025-06.parquet": {
+      "negative_amount": 2129,
+      "zero_distance": 4222,
+      "bad_timestamps": 768,
+      "out_of_period": 304,
+      "implausible_speed": 476,
+      "fare_outlier": 46,
+      "duplicates": 1818,
+      "unknown_zone": 2399,
+      "missing_passenger_count": 15190
+    }
+  },
+  "expected_silver_rows_after_all_files": 3497114
+}

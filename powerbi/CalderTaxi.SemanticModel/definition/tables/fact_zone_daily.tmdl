@@ -1,0 +1,119 @@
+table fact_zone_daily
+	lineageTag: 93d59e3f-b1fb-5191-be95-a217373b1ca3
+
+	column date
+		dataType: dateTime
+		isHidden
+		formatString: dd mmm yyyy
+		lineageTag: 883cb3fb-1c8e-54e5-aa0d-6a0f294b751d
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = User
+
+	column location_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e47ded26-7dfe-5936-86bf-722f1319a151
+		summarizeBy: none
+		sourceColumn: location_id
+
+		annotation SummarizationSetBy = User
+
+	column trips
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: be913340-a29b-53ed-ac27-10db2887b7ad
+		summarizeBy: none
+		sourceColumn: trips
+
+		annotation SummarizationSetBy = User
+
+	column revenue
+		dataType: double
+		isHidden
+		lineageTag: 2ed316c5-a640-5323-9fe8-8323905fa0d6
+		summarizeBy: none
+		sourceColumn: revenue
+
+		annotation SummarizationSetBy = User
+
+	column fare_revenue
+		dataType: double
+		isHidden
+		lineageTag: 6d0be52d-1aae-5eb3-b2ad-2dfdeb007986
+		summarizeBy: none
+		sourceColumn: fare_revenue
+
+		annotation SummarizationSetBy = User
+
+	column tips
+		dataType: double
+		isHidden
+		lineageTag: 9b1253d6-7c43-54ce-b105-2a219c55f457
+		summarizeBy: none
+		sourceColumn: tips
+
+		annotation SummarizationSetBy = User
+
+	column distance_mi
+		dataType: double
+		isHidden
+		lineageTag: 3a322106-df6d-53be-b3be-a97f9e0df73c
+		summarizeBy: none
+		sourceColumn: distance_mi
+
+		annotation SummarizationSetBy = User
+
+	column duration_min
+		dataType: double
+		isHidden
+		lineageTag: e39aeae4-b159-55eb-88a7-2cfe8757114d
+		summarizeBy: none
+		sourceColumn: duration_min
+
+		annotation SummarizationSetBy = User
+
+	column card_trips
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 120f9cdd-9c43-5dda-a725-bed716ed595a
+		summarizeBy: none
+		sourceColumn: card_trips
+
+		annotation SummarizationSetBy = User
+
+	column card_fares
+		dataType: double
+		isHidden
+		lineageTag: c65aeb7d-fc5e-5e26-957d-256948c14148
+		summarizeBy: none
+		sourceColumn: card_fares
+
+		annotation SummarizationSetBy = User
+
+	column card_tips
+		dataType: double
+		isHidden
+		lineageTag: a6e5c864-c18e-5b50-a367-abb79d92278c
+		summarizeBy: none
+		sourceColumn: card_tips
+
+		annotation SummarizationSetBy = User
+
+	partition fact_zone_daily = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "zone_daily.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Kept = Table.SelectColumns(Promoted, {"date", "location_id", "trips", "revenue", "fare_revenue", "tips", "distance_mi", "duration_min", "card_trips", "card_fares", "card_tips"}),
+				    Blanks = Table.TransformColumns(Kept, {}, each if _ = "" then null else _),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"date", type date}, {"location_id", Int64.Type}, {"trips", Int64.Type}, {"revenue", type number}, {"fare_revenue", type number}, {"tips", type number}, {"distance_mi", type number}, {"duration_min", type number}, {"card_trips", Int64.Type}, {"card_fares", type number}, {"card_tips", type number}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

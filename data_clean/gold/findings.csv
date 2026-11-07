@@ -1,0 +1,15 @@
+key,value,finding
+card_share_trend,0.05109999999999992,card share rose from 69.9% in January to 75.0% in June
+airport_revenue_share,0.07160247760387427,airport trips are 3.5% of trips but 7.2% of revenue ($68.05 per trip)
+top10_zone_share,0.2861920551839218,the top 10 of 64 pick-up zones generate 29% of revenue; #1 is Station Arts District (Downtown) with $4.54M
+downtown_pickup_revenue_share,0.2956794714548961,Downtown pick-ups generate 30% of revenue
+cbd_fee_effect,-0.06959260337464424,the congestion fee cut trips touching Downtown by 7.0% (95% CI 6.5% to 7.4%) relative to the rest of the city
+cbd_fees_collected,2951307.5,Downtown share of trips 50.9% before -> 48.9% after; $2.95M in congestion fees collected Mar-Jun
+weekday_peak_hour,18.0,"weekday peak 18:00-19:00 with 1,324 trips per hour at 10.4 mph (fastest hour: 20.1 mph)"
+weekend_peak_hour,22.0,"weekend peak 22:00 with 1,117 trips per hour; weekend 0:00-3:00 has 2.2x the weekday late-night demand"
+total_trips,3497114.0,"3,497,114 clean trips, $116.8M revenue, $33.41 per trip (Jan-Jun 2025)"
+trips_per_day_jan_jun,0.08985363706393756,"trips per day 18,174 in January -> 19,807 in June (+9.0%)"
+rainy_days,41.0,41 rainy days of 181
+card_tip_pct,0.2065,"card riders tip 20.6% of the fare; card is 73% of trips. Cash tips are not recorded (cash shows 0%), so tip analysis uses card trips only"
+rain_demand_effect,0.12237244892305732,"rainy days (2 mm+) bring +12.2% trips (95% CI +11.0% to +13.5%), same weekday and month"
+rain_speed_effect,-0.11215967878066002,and traffic is 11.2% slower

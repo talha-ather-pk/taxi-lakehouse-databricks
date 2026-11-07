@@ -1,0 +1,16 @@
+metric,step,layer,rows,injected
+Rows received,1,Raw files,3558602,
+Rows landed,2,Bronze,3558602,
+Exact duplicates removed,3,Silver,10630,10630.0
+Same trip sent twice (older copy dropped),4,Silver,0,
+Replaced by vendor corrections,5,Silver,4443,
+Rejected: zero distance,6,Silver,24803,24803.0
+Rejected: negative amount,7,Silver,12401,12401.0
+Rejected: bad timestamps,8,Silver,4252,4252.0
+Rejected: implausible speed,9,Silver,2834,2834.0
+Rejected: out of period,10,Silver,1771,1771.0
+Rejected: fare outlier,11,Silver,354,354.0
+Clean trips,12,Silver,3497114,
+Trips in gold tables,13,Gold,3497114,
+Unknown zone ID,14,"Silver (kept, flagged)",14173,14173.0
+Missing passenger count,15,"Silver (kept, flagged)",88583,88583.0

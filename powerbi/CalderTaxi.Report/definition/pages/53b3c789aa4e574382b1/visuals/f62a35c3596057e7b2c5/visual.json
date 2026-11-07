@@ -1,0 +1,219 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "f62a35c3596057e7b2c5",
+  "position": {
+    "x": 224,
+    "y": 504,
+    "z": 5100,
+    "height": 200,
+    "width": 1040,
+    "tabOrder": 5100
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "pipeline_batches"
+                    }
+                  },
+                  "Property": "run"
+                }
+              },
+              "queryRef": "pipeline_batches.run",
+              "nativeQueryRef": "run",
+              "displayName": "Run"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "pipeline_batches"
+                    }
+                  },
+                  "Property": "files"
+                }
+              },
+              "queryRef": "pipeline_batches.files",
+              "nativeQueryRef": "files",
+              "displayName": "Files loaded"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Batch Rows In"
+                }
+              },
+              "queryRef": "_Measures.Batch Rows In",
+              "nativeQueryRef": "Batch Rows In",
+              "displayName": "Rows in"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Batch Duplicates"
+                }
+              },
+              "queryRef": "_Measures.Batch Duplicates",
+              "nativeQueryRef": "Batch Duplicates",
+              "displayName": "Duplicates"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Batch Rejected"
+                }
+              },
+              "queryRef": "_Measures.Batch Rejected",
+              "nativeQueryRef": "Batch Rejected",
+              "displayName": "Rejected"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Batch Inserted"
+                }
+              },
+              "queryRef": "_Measures.Batch Inserted",
+              "nativeQueryRef": "Batch Inserted",
+              "displayName": "Inserted"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Batch Updated"
+                }
+              },
+              "queryRef": "_Measures.Batch Updated",
+              "nativeQueryRef": "Batch Updated",
+              "displayName": "Updated"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "pipeline_batches"
+                    }
+                  },
+                  "Property": "silver_version"
+                }
+              },
+              "queryRef": "pipeline_batches.silver_version",
+              "nativeQueryRef": "silver_version",
+              "displayName": "Silver version"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "pipeline_batches"
+                    }
+                  },
+                  "Property": "months_touched"
+                }
+              },
+              "queryRef": "pipeline_batches.months_touched",
+              "nativeQueryRef": "months_touched",
+              "displayName": "Gold months rebuilt"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "pipeline_batches"
+                  }
+                },
+                "Property": "run"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": false
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Pipeline runs: only new files are read; corrections update rows in place (Delta MERGE)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'A third run with no new files changed nothing'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

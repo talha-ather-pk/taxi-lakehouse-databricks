@@ -1,0 +1,18 @@
+table dim_daytype
+	lineageTag: c1d9c38d-8381-5da9-a945-edec8c249672
+
+	column day_type
+		dataType: string
+		isKey
+		lineageTag: 3b2831bd-daa1-5a16-9934-0f098f272393
+		summarizeBy: none
+		sourceColumn: day_type
+
+		annotation SummarizationSetBy = User
+
+	partition dim_daytype = m
+		mode: import
+		source =
+				#table(type table [day_type = text], {{"Weekday"}, {"Weekend"}})
+
+	annotation PBI_ResultType = Table

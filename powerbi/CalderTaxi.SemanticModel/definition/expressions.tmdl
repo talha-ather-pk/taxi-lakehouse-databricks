@@ -1,0 +1,4 @@
+expression DataFolder = "C:\Users\DELL\upwork-profile\data-portfolio\data-portfolio\04-nyc-taxi-databricks-lakehouse\data_clean\gold\" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: e5859b98-15cb-55ed-85d7-71cdaa690874
+
+	annotation PBI_ResultType = Text

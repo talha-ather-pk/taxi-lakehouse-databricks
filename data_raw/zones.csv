@@ -1,0 +1,67 @@
+LocationID,Borough,Zone,service_zone,zone_type
+1,Downtown,Signal Financial District,Congestion Zone,business
+2,Downtown,Canal Plaza,Congestion Zone,business
+3,Downtown,Summit Village,Congestion Zone,nightlife
+4,Downtown,Copper Plaza,Congestion Zone,business
+5,Downtown,Lantern Exchange,Congestion Zone,business
+6,Downtown,Summit Square,Congestion Zone,mixed
+7,Downtown,Harbor Financial District,Congestion Zone,business
+8,Downtown,Cedar Financial District,Congestion Zone,business
+9,Downtown,Ferry Market,Congestion Zone,mixed
+10,Downtown,Station Arts District,Congestion Zone,nightlife
+11,Downtown,Bridge Tower Row,Congestion Zone,business
+12,Downtown,Arbor Financial District,Congestion Zone,business
+13,Downtown,Union Theatre Row,Congestion Zone,nightlife
+14,Downtown,Elm Financial District,Congestion Zone,business
+15,Riverside,Signal Commons,Boro Zone,residential
+16,Riverside,Quarry Gardens,Boro Zone,residential
+17,Riverside,Foundry Gardens,Boro Zone,residential
+18,Riverside,Kings Commons,Boro Zone,residential
+19,Riverside,Elm Gardens,Boro Zone,residential
+20,Riverside,Quarry Crossing,Boro Zone,mixed
+21,Riverside,Summit Docks,Boro Zone,nightlife
+22,Riverside,Quarry Park,Boro Zone,residential
+23,Riverside,Kings Yards,Boro Zone,mixed
+24,Riverside,Arbor Terrace,Boro Zone,residential
+25,Riverside,Elm Heights,Boro Zone,residential
+26,Riverside,Granite Theatre Row,Boro Zone,nightlife
+27,Northgate,Harbor Junction,Boro Zone,mixed
+28,Northgate,Harbor Heights,Boro Zone,residential
+29,Northgate,Cedar Hill,Boro Zone,residential
+30,Northgate,Grove Park,Boro Zone,residential
+31,Northgate,Arbor Exchange,Boro Zone,business
+32,Northgate,Union Heights,Boro Zone,residential
+33,Northgate,Park Commons,Boro Zone,residential
+34,Northgate,Beacon Terrace,Boro Zone,residential
+35,Northgate,Beacon Park,Boro Zone,residential
+36,Northgate,Chapel Yards,Boro Zone,mixed
+37,Northgate,Granite Gardens,Boro Zone,residential
+38,Northgate,Harbor Park,Boro Zone,residential
+39,Eastport,Park Crossing,Boro Zone,mixed
+40,Eastport,Union Junction,Boro Zone,mixed
+41,Eastport,Ferry Terrace,Boro Zone,residential
+42,Eastport,Orchard Market,Boro Zone,mixed
+43,Eastport,Foundry Hill,Boro Zone,residential
+44,Eastport,Lantern Market,Boro Zone,mixed
+45,Eastport,Lantern Hill,Boro Zone,residential
+46,Eastport,Hollow Junction,Boro Zone,mixed
+47,Eastport,Signal Terrace,Boro Zone,residential
+48,Eastport,Elm Junction,Boro Zone,mixed
+49,Eastport,Quarry Market,Boro Zone,mixed
+50,Eastport,Beacon Yards,Boro Zone,mixed
+51,Westfield,Willow Junction,Boro Zone,mixed
+52,Westfield,Lantern Commons,Boro Zone,residential
+53,Westfield,Willow Park,Boro Zone,residential
+54,Westfield,Arbor Hill,Boro Zone,residential
+55,Westfield,Union Commons,Boro Zone,residential
+56,Westfield,Orchard Park,Boro Zone,residential
+57,Westfield,Copper Heights,Boro Zone,residential
+58,Westfield,Copper Hill,Boro Zone,residential
+59,Westfield,Cedar Crossing,Boro Zone,mixed
+60,Westfield,Signal Heights,Boro Zone,residential
+61,Westfield,Summit Commons,Boro Zone,residential
+62,Westfield,Quarry Commons,Boro Zone,residential
+63,Airports,Calder International Airport,Airports,airport
+64,Airports,Lakeshore Regional Airport,Airports,airport
+98,Unknown,Unknown,N/A,unknown
+99,Unknown,Outside Calder City,N/A,unknown

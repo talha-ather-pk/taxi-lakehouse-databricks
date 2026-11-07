@@ -1,0 +1,27 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DataFolder", "_Measures", "fact_zone_daily", "fact_hourly", "fact_payment", "fact_flows", "fact_downtown", "dim_zone", "dim_borough", "dim_date", "dim_month", "dim_daytype", "data_quality", "pipeline_batches", "findings"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+ref table _Measures
+ref table fact_zone_daily
+ref table fact_hourly
+ref table fact_payment
+ref table fact_flows
+ref table fact_downtown
+ref table dim_zone
+ref table dim_borough
+ref table dim_date
+ref table dim_month
+ref table dim_daytype
+ref table data_quality
+ref table pipeline_batches
+ref table findings

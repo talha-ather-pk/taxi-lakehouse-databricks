@@ -1,0 +1,60 @@
+table dim_zone
+	lineageTag: 1ede9cf0-8ff7-5422-a0f9-d666b020f2e8
+
+	column location_id
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 91ee82fa-4af1-524a-a8c4-1a46848f2fda
+		summarizeBy: none
+		sourceColumn: location_id
+
+		annotation SummarizationSetBy = User
+
+	column borough
+		dataType: string
+		isHidden
+		lineageTag: b51e848b-f179-5984-9088-2460369cc534
+		summarizeBy: none
+		sourceColumn: borough
+
+		annotation SummarizationSetBy = User
+
+	column zone
+		dataType: string
+		lineageTag: 9c9d938e-125c-54b3-9a5e-466ccefe92e1
+		summarizeBy: none
+		sourceColumn: zone
+
+		annotation SummarizationSetBy = User
+
+	column service_zone
+		dataType: string
+		lineageTag: 44bc0d1f-58a1-58ea-8190-1003bd987f85
+		summarizeBy: none
+		sourceColumn: service_zone
+
+		annotation SummarizationSetBy = User
+
+	column zone_type
+		dataType: string
+		lineageTag: 03fc2c6b-ad5c-5b82-9576-d576656921bd
+		summarizeBy: none
+		sourceColumn: zone_type
+
+		annotation SummarizationSetBy = User
+
+	partition dim_zone = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "silver_zones.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Kept = Table.SelectColumns(Promoted, {"location_id", "borough", "zone", "service_zone", "zone_type"}),
+				    Blanks = Table.TransformColumns(Kept, {}, each if _ = "" then null else _),
+				    Typed = Table.TransformColumnTypes(Blanks, {{"location_id", Int64.Type}, {"borough", type text}, {"zone", type text}, {"service_zone", type text}, {"zone_type", type text}}, "en-US"),
+				    Ztype = Table.TransformColumns(Typed, {"zone_type", Text.Proper, type text})
+				in
+				    Ztype
+
+	annotation PBI_ResultType = Table
