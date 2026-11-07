@@ -6,15 +6,15 @@
 #   databricks auth login --host https://<your-workspace>.cloud.databricks.com
 #   python scripts/generate_data.py     # creates data_raw/ if it is not there
 #
-# Usage (from the repo root):  powershell -File databricks/run_on_databricks.ps1 [-Profile DEFAULT]
-param([string]$Profile = "DEFAULT", [switch]$SkipUpload)
+# Usage (from the repo root):  powershell -File databricks/run_on_databricks.ps1 [-DbProfile DEFAULT]
+param([string]$DbProfile = "DEFAULT", [switch]$SkipUpload)
 
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 $vol = "dbfs:/Volumes/workspace/taxi_bronze/landing"
 
-function Db { & databricks @args --profile $Profile; if ($LASTEXITCODE -ne 0) { throw "databricks $args failed" } }
-function DbTry { $ErrorActionPreference = "Continue"; & databricks @args --profile $Profile 2>&1 | Out-Null }   # tolerates "already exists"
+function Db { & databricks @args --profile $DbProfile; if ($LASTEXITCODE -ne 0) { throw "databricks $args failed" } }
+function DbTry { $ErrorActionPreference = "Continue"; & databricks @args --profile $DbProfile 2>&1 | Out-Null }   # tolerates "already exists"
 function Step($t) { Write-Host "`n=== $t ===" -ForegroundColor Cyan }
 
 if (-not (Test-Path data_raw/trips/trips_2025-01.parquet)) { throw "data_raw/trips is missing: run python scripts/generate_data.py first" }
