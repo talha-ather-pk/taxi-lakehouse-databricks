@@ -8,12 +8,18 @@ Catalog tables (`workspace.taxi_bronze.*`, `taxi_silver.*`, `taxi_gold.*`); loca
 
 1. Sign up at <https://www.databricks.com/learn/free-edition> (free, no credit card). The workspace has a
    `workspace` catalog and serverless compute.
-2. **Optional, for the CLI:** in your workspace go to *Settings → Developer → Access tokens → Generate new token*,
-   then install the CLI and log in:
+2. **Optional, for the CLI:** install it and log in (opens the browser, no token needed):
    ```bash
    winget install Databricks.DatabricksCLI     # macOS: brew install databricks
    databricks auth login --host https://<your-workspace>.cloud.databricks.com
    ```
+
+**One command (Windows):** after logging in, [`run_on_databricks.ps1`](run_on_databricks.ps1) does sections 2 – 4
+below: it creates the schemas and volume, uploads the files, deploys the bundle and runs the job three times.
+```powershell
+python scripts/generate_data.py                    # if data_raw/ is not there yet
+powershell -File databricks/run_on_databricks.ps1
+```
 
 ## 2. Landing files
 
