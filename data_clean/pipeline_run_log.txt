@@ -1,6 +1,6 @@
 
 ################ ROUND: initial  (landing: trips_2025-01.parquet, trips_2025-02.parquet, trips_2025-03.parquet, trips_2025-04.parquet, trips_2025-05.parquet)
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 01_bronze.py ===
 5 files in landing, 0 already loaded, 5 new -> batch 20261107131656
@@ -32,7 +32,7 @@ zones: 66 rows, weather: 181 days
 +-----------+-----+
 
 --- 01_bronze.py finished in 114s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 02_silver.py ===
 bronze batches not yet in silver: ['20261107131656']
@@ -55,7 +55,7 @@ batch 20261107131656: 2,950,029 in | 8,812 exact duplicates | 38,470 rejected | 
 +------------+----------+----------+
 
 --- 02_silver.py finished in 198s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 03_gold.py ===
 silver batches not yet in gold: ['20261107131656'] -> months to rebuild: ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05'] (first run: full build)
@@ -76,7 +76,7 @@ gold.downtown_daily: full build -> 302 rows
 +------------+------+-----------+----------------+
 
 --- 03_gold.py finished in 100s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 04_quality_and_history.py ===
 PASS  bronze rows = rows in landed files
@@ -130,7 +130,7 @@ silver.trips files: 5 -> 5 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id
 --- 04_quality_and_history.py finished in 123s
 
 ################ ROUND: incremental  (landing: trips_2025-06.parquet, trips_2025-05_resend.parquet)
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 01_bronze.py ===
 7 files in landing, 5 already loaded, 2 new -> batch 20261107132551
@@ -158,7 +158,7 @@ zones: 66 rows, weather: 181 days
 +-----------+-----+
 
 --- 01_bronze.py finished in 50s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 02_silver.py ===
 bronze batches not yet in silver: ['20261107132551']
@@ -181,7 +181,7 @@ batch 20261107132551: 608,573 in | 1,818 exact duplicates | 7,945 rejected | 594
 +------------+----------+----------+
 
 --- 02_silver.py finished in 112s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 03_gold.py ===
 silver batches not yet in gold: ['20261107132551'] -> months to rebuild: ['2025-05', '2025-06']
@@ -203,7 +203,7 @@ gold.downtown_daily: rebuilt 2025-05, 2025-06 -> 362 rows
 +------------+------+-----------+----------------+
 
 --- 03_gold.py finished in 85s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 04_quality_and_history.py ===
 PASS  bronze rows = rows in landed files
@@ -261,7 +261,7 @@ silver.trips files: 6 -> 6 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id
 --- 04_quality_and_history.py finished in 109s
 
 ################ ROUND: rerun  (landing: no new files)
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 01_bronze.py ===
 7 files in landing, 7 already loaded, 0 new -> batch 20261107133148
@@ -286,7 +286,7 @@ zones: 66 rows, weather: 181 days
 +-----------+-----+
 
 --- 01_bronze.py finished in 12s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 02_silver.py ===
 bronze batches not yet in silver: none
@@ -308,7 +308,7 @@ bronze batches not yet in silver: none
 +------------+----------+----------+
 
 --- 02_silver.py finished in 24s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 03_gold.py ===
 silver batches not yet in gold: none -> months to rebuild: none
@@ -325,7 +325,7 @@ Gold is up to date.
 +------------+------+-----------+----------------+
 
 --- 03_gold.py finished in 4s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 04_quality_and_history.py ===
 PASS  bronze rows = rows in landed files
@@ -382,7 +382,7 @@ silver.trips files: 6 -> 6 after OPTIMIZE ZORDER BY (pickup_date, pu_location_id
 +-----------------------------------------+----+----------------------+-------+--------+
 
 --- 04_quality_and_history.py finished in 113s
-Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-nyc-taxi-databricks-lakehouse/landing
+Running on local Spark 4.2.0; landing = C:/Users/DELL/upwork-profile/data-portfolio/data-portfolio/04-taxi-lakehouse-databricks/landing
 
 === 05_analysis.py ===
 +------------+------+-----------+----------------+-------------+
