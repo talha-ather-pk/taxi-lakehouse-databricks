@@ -59,6 +59,25 @@ The generator's true effects are −7% (fee), +12% demand / −12% speed (rain):
 Step-by-step for Databricks Free Edition: [`databricks/SETUP.md`](databricks/SETUP.md). The code avoids what serverless does
 not allow (RDDs, `cache()`, `sparkContext`).
 
+### Verified on Databricks
+
+The same notebooks were deployed with the bundle to a Databricks Free Edition workspace (serverless compute, Unity Catalog)
+by [`databricks/run_on_databricks.ps1`](databricks/run_on_databricks.ps1) and run three times. Every task succeeded, and
+every number matches the local run exactly:
+
+| Check | Databricks | Local Spark |
+|---|---:|---:|
+| Bronze rows (`taxi_bronze.trips`) | 3,558,602 | 3,558,602 |
+| Clean trips (`taxi_silver.trips`) | 3,497,114 | 3,497,114 |
+| Rejected with a reason (`taxi_silver.trips_rejected`) | 46,415 | 46,415 |
+| Run 2: inserted / updated by MERGE | 594,367 / 4,443 | 594,367 / 4,443 |
+| Findings (`taxi_gold.findings`, 14 rows) | identical | identical |
+| Job run time: initial / incremental / re-run | 3m 26s / 2m 12s / 1m 24s | |
+
+![Databricks job: three runs, every task green](images/databricks_job_runs.png)
+
+![Databricks job run graph: bronze, silver, gold, quality](images/databricks_job_run.png)
+
 ### The three runs
 
 | Run | Files landed | Rows in | Duplicates | Rejected | Inserted | Updated | Gold months rebuilt |

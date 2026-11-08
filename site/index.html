@@ -74,6 +74,11 @@ a{color:var(--pos)}
   <figure><img src="img/chart_pipeline.png" alt="Rows removed by reason, each equal to the injected count" loading="lazy"></figure>
   <figure><img src="img/dashboard_pipeline.png" alt="Power BI Data Pipeline page" loading="lazy"><figcaption>Power BI · Data Pipeline</figcaption></figure>
 
+  <h2>Verified on Databricks</h2>
+  <p class="sub">Deployed with the Asset Bundle to a Databricks Free Edition workspace (serverless, Unity Catalog) and run three times. Every task succeeded and every count matches the local run exactly: 3,558,602 bronze rows, 3,497,114 clean trips, 46,415 rejected, 4,443 corrections merged.</p>
+  <figure><img src="img/databricks_job_runs.png" alt="Databricks job with three successful runs" loading="lazy"><figcaption>Databricks · three runs (initial, incremental, re-run), every task green</figcaption></figure>
+  <figure><img src="img/databricks_job_run.png" alt="Databricks job run graph" loading="lazy"><figcaption>Databricks · run graph: bronze → silver → gold → quality</figcaption></figure>
+
   <h2>Findings</h2>
   <ol class="findings">
     <li><b>The $2.50 Downtown congestion fee cut trips touching Downtown by 7.0%</b> (95% CI 6.5–7.4%) relative to the rest of the city, and collected $2.95M in four months.</li>

@@ -29,6 +29,7 @@ Db volumes read workspace.taxi_bronze.landing --output json | ConvertFrom-Json |
 
 if (-not $SkipUpload) {
     Step "Upload reference files and the first five months"
+    foreach ($d in "reference", "trips") { Db fs mkdir "$vol/$d" }
     foreach ($f in "zones.csv", "weather_daily.csv", "true_effects.json") { Db fs cp "data_raw/$f" "$vol/reference/$f" --overwrite }
     foreach ($m in "01", "02", "03", "04", "05") { Db fs cp "data_raw/trips/trips_2025-$m.parquet" "$vol/trips/trips_2025-$m.parquet" --overwrite }
 }
